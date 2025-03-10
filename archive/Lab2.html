@@ -1,0 +1,997 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Colx 525 Lab Assignment 2: Morphological Segmentation &#8212; Yuchen&#39;s Projects Collection</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'archive/Lab2';</script>
+    <link rel="shortcut icon" href="../_static/linkedin.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Colx 525 Lab Assignment 3: POS Tagging" href="Lab3.html" />
+    <link rel="prev" title="Welcome to your Jupyter Book" href="intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="Yuchen's Projects Collection - Home"/>
+    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="Yuchen's Projects Collection - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Colx 525 Lab Assignment 2: Morphological Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Lab3.html">Colx 525 Lab Assignment 3: POS Tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Content with notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="markdown-notebooks.html">Notebooks with MyST Markdown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="COLX_531_Lab_2_.html">COLX 531 Lab 2. Training transformers efficiently</a></li>
+
+
+
+<li class="toctree-l1"><a class="reference internal" href="markdown.html">Markdown Files</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/Julian-Yc/data-science-archive" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/Julian-Yc/data-science-archive/issues/new?title=Issue%20on%20page%20%2Farchive/Lab2.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/archive/Lab2.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Colx 525 Lab Assignment 2: Morphological Segmentation</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-objectives">Assignment objectives</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting started</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tidy-submission">Tidy Submission</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-reading-in-data">Assignment 1: Reading in data</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-1-reading-data-files-into-lists">Assignment 1.1: Reading data files into lists</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-2-bies-notation">Assignment 1.2: BIES notation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-3-from-bies-notation-to-morphemes">Assignment 1.3: From BIES notation to morphemes</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-2-bpe-baseline">Assignment 2: BPE baseline</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-2-1-training-a-bpe-model">Assignment 2.1: Training a BPE model</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-2-2-segmenting-development-and-test-data-using-bpe">Assignment 2.2: Segmenting development and test data using BPE</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-3-evaluation">Assignment 3: Evaluation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-4-supervised-morphological-segmentation">Assignment 4: Supervised morphological segmentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-4-1-feature-engineering">Assignment 4.1: Feature engineering</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-4-2-training-the-segmentation-system">Assignment 4.2: Training the segmentation system</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-4-3-fine-tuning-and-segmentation">Assignment 4.3: Fine-tuning and segmentation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#qualitative-analysis">4.4 Qualitative analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-4-5-ablation-test-optional">Assignment 4.5: Ablation Test (Optional)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="colx-525-lab-assignment-2-morphological-segmentation">
+<h1>Colx 525 Lab Assignment 2: Morphological Segmentation<a class="headerlink" href="#colx-525-lab-assignment-2-morphological-segmentation" title="Permalink to this heading">#</a></h1>
+<section id="assignment-objectives">
+<h2>Assignment objectives<a class="headerlink" href="#assignment-objectives" title="Permalink to this heading">#</a></h2>
+<p>In this assignment, you will develop a supervised morphological segmentation system using the <code class="docutils literal notranslate"><span class="pre">pycrfsuite</span></code> tagger toolkit. You will:</p>
+<ol class="arabic simple">
+<li><p>Read in training, development and test data.</p></li>
+<li><p>Convert datasets into BIES format.</p></li>
+<li><p>Train a baseline BPE segmentation system using the Python toolkit <code class="docutils literal notranslate"><span class="pre">bpe</span></code>.</p></li>
+<li><p>Implement an evaluation function for morphologial segmentation.</p></li>
+<li><p>Implement a feature extraction function for your supervised segmentation system.</p></li>
+<li><p>Train your segmentation system and apply it to test data.</p></li>
+</ol>
+<p>All parts of this assignment are mandatory.</p>
+</section>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h2>
+<p>You will need to install the Python modules <code class="docutils literal notranslate"><span class="pre">bpe</span></code>, <code class="docutils literal notranslate"><span class="pre">numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">pycrfsuite</span></code>. The easiest way to do this is using <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">crfsuite</span> <span class="n">bpe</span> <span class="n">numpy</span>
+</pre></div>
+</div>
+</section>
+<section id="tidy-submission">
+<h2>Tidy Submission<a class="headerlink" href="#tidy-submission" title="Permalink to this heading">#</a></h2>
+<p>rubric={mechanics:1}</p>
+<p>To get the marks for tidy submission:</p>
+<ul class="simple">
+<li><p>Submit the assignment by filling in this jupyter notebook with your answers embedded</p></li>
+<li><p>Be sure to follow the general lab instructions</p></li>
+<li><p>This week’s lab is a <em>paired</em> lab.  Each team member should submit a copy of the lab, and clearly indicate who you were working with.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="o">!{</span>sys.executable<span class="o">}</span><span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>python-crfsuite<span class="w"> </span>bpe<span class="w"> </span>numpy
+</pre></div>
+</div>
+</div>
+</div>
+<section id="assignment-1-reading-in-data">
+<h3>Assignment 1: Reading in data<a class="headerlink" href="#assignment-1-reading-in-data" title="Permalink to this heading">#</a></h3>
+<p>Start by running the following code. It will create a directory <code class="docutils literal notranslate"><span class="pre">.data</span></code> and download English segmentation data into the directory. If you can’t access the data in this way, it’s available in the course repo to download.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">urllib.request</span><span class="o">,</span> <span class="nn">tarfile</span>
+
+<span class="n">URL</span> <span class="o">=</span> <span class="s2">&quot;https://github.ubc.ca/MDS-CL-2024-25/COLX_525_morphology_students/tree/master/data/segmentation_data.tgz&quot;</span>
+<span class="n">DATADIR</span> <span class="o">=</span> <span class="s2">&quot;.data&quot;</span>
+<span class="n">FN</span> <span class="o">=</span> <span class="s2">&quot;segmentation_data&quot;</span>
+<span class="n">TGZ</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATADIR</span><span class="p">,</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.tgz&quot;</span> <span class="o">%</span> <span class="n">FN</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating&quot;</span><span class="p">,</span><span class="n">DATADIR</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">DATADIR</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading </span><span class="si">%s</span><span class="s2">.tgz into .data&quot;</span> <span class="o">%</span> <span class="n">FN</span><span class="p">)</span>
+<span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">URL</span><span class="p">,</span><span class="n">TGZ</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Extracting </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">TGZ</span><span class="p">)</span>
+<span class="n">tf</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">TGZ</span><span class="p">)</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">DATADIR</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="assignment-1-1-reading-data-files-into-lists">
+<h4>Assignment 1.1: Reading data files into lists<a class="headerlink" href="#assignment-1-1-reading-data-files-into-lists" title="Permalink to this heading">#</a></h4>
+<p>rubric={accuracy:5}</p>
+<p>In the sub-directory <code class="docutils literal notranslate"><span class="pre">segmentation_data</span></code> of the directory <code class="docutils literal notranslate"><span class="pre">.data</span></code>, there are three files: <code class="docutils literal notranslate"><span class="pre">traindata</span></code>, <code class="docutils literal notranslate"><span class="pre">devdata</span></code> and <code class="docutils literal notranslate"><span class="pre">testdata</span></code>. These files consists of two tab-separated columns:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vouchsafed</span>      <span class="n">vouch</span> <span class="n">saf</span> <span class="n">ed</span>
+<span class="n">negative</span>        <span class="n">negat</span> <span class="n">ive</span>
+<span class="n">annotations</span>     <span class="n">an</span> <span class="ow">not</span> <span class="n">at</span> <span class="n">ion</span> <span class="n">s</span>
+<span class="n">torpedos</span>        <span class="n">torpedo</span> <span class="n">s</span>
+<span class="n">coxswain</span>        <span class="n">coxswain</span>
+<span class="n">lofted</span>          <span class="n">loft</span> <span class="n">ed</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>The first column contains a word form and the second column contains the same word form but segmented into morphemes. Please read these files into three lists: <code class="docutils literal notranslate"><span class="pre">traindata</span></code>, <code class="docutils literal notranslate"><span class="pre">devdata</span></code> and <code class="docutils literal notranslate"><span class="pre">testdata</span></code>. Each list element should be a pair like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s2">&quot;vouchsafed&quot;</span><span class="p">,[</span><span class="s2">&quot;vouch&quot;</span><span class="p">,</span><span class="s2">&quot;saf&quot;</span><span class="p">,</span><span class="s2">&quot;ed&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>This means that you’ll have to read in a line from the file, separate the X (the full word) from the Y (the segmented word), and create a list of 2 items.  The first will be the full word; the second will be a list of morphemes.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">traindata</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">devdata</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">testdata</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># your code here</span>
+<span class="c1"># your code here</span>
+
+<span class="c1"># A few assertions to make sure that your code is working properly.  As always - check your data to make sure that conforms to expectations</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">traindata</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;vouchsafed&quot;</span><span class="p">,[</span><span class="s2">&quot;vouch&quot;</span><span class="p">,</span> <span class="s2">&quot;saf&quot;</span><span class="p">,</span> <span class="s2">&quot;ed&quot;</span><span class="p">]])</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">devdata</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;sales&quot;</span><span class="p">,[</span><span class="s2">&quot;sale&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">]])</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">testdata</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;bunkhouses&quot;</span><span class="p">,[</span><span class="s2">&quot;bunk&quot;</span><span class="p">,</span><span class="s2">&quot;house&quot;</span><span class="p">,</span><span class="s2">&quot;s&quot;</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we’ll define <code class="docutils literal notranslate"><span class="pre">trainwords</span></code>, <code class="docutils literal notranslate"><span class="pre">devwords</span></code> and <code class="docutils literal notranslate"><span class="pre">testwords</span></code> which simply contain the unsegmented word forms in the data sets:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Your code here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="assignment-1-2-bies-notation">
+<h4>Assignment 1.2: BIES notation<a class="headerlink" href="#assignment-1-2-bies-notation" title="Permalink to this heading">#</a></h4>
+<p>rubric={accuracy:10}</p>
+<p>We will use a sequential tagger for morphological segmentation which means that we need to convert our segmented word forms into so called BIES (Begin-Inside-End-Singleton) format which looks like this (for the word form “bunkhouses” segmented as “bunk” “house” “s”):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">BEGIN</span>   <span class="n">INSIDE</span>   <span class="n">INSIDE</span>   <span class="n">END</span>   <span class="n">BEGIN</span>   <span class="n">INSIDE</span>   <span class="n">INSIDE</span>   <span class="n">INSIDE</span>   <span class="n">END</span>   <span class="n">SINGLE</span>
+
+<span class="n">b</span>       <span class="n">u</span>        <span class="n">n</span>        <span class="n">k</span>     <span class="n">h</span>       <span class="n">o</span>        <span class="n">u</span>        <span class="n">s</span>        <span class="n">e</span>     <span class="n">s</span>
+</pre></div>
+</div>
+<p>The first character of each morpheme receives a <code class="docutils literal notranslate"><span class="pre">BEGIN</span></code> tag, the last one an <code class="docutils literal notranslate"><span class="pre">END</span></code> tag and the remaining characters receive an <code class="docutils literal notranslate"><span class="pre">INSIDE</span></code> tag. As a special case, morphemes consisting of a single character (like the plural “s” ending above), receive the tag <code class="docutils literal notranslate"><span class="pre">SINGLE</span></code>.</p>
+<p>It is your task to convert <code class="docutils literal notranslate"><span class="pre">traindata</span></code>, <code class="docutils literal notranslate"><span class="pre">devdata</span></code> and <code class="docutils literal notranslate"><span class="pre">testdata</span></code> into BIES format. You should store the result in the lists <code class="docutils literal notranslate"><span class="pre">trainbies</span></code>, <code class="docutils literal notranslate"><span class="pre">devbies</span></code> and <code class="docutils literal notranslate"><span class="pre">testbies</span></code>. Each example in these lists should have the following format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="s2">&quot;BEGIN&quot;</span><span class="p">],</span>
+ <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">,</span><span class="s2">&quot;INSIDE&quot;</span><span class="p">],</span>
+ <span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">,</span><span class="s2">&quot;INSIDE&quot;</span><span class="p">],</span>
+ <span class="p">[</span><span class="s2">&quot;k&quot;</span><span class="p">,</span><span class="s2">&quot;END&quot;</span><span class="p">],</span>
+ <span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">,</span><span class="s2">&quot;BEGIN&quot;</span><span class="p">],</span>
+ <span class="p">[</span><span class="s2">&quot;o&quot;</span><span class="p">,</span><span class="s2">&quot;INSIDE&quot;</span><span class="p">],</span>
+ <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">,</span><span class="s2">&quot;INSIDE&quot;</span><span class="p">]</span>
+ <span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span><span class="s2">&quot;INSIDE&quot;</span><span class="p">],</span>
+ <span class="p">[</span><span class="s2">&quot;e&quot;</span><span class="p">,</span><span class="s2">&quot;END&quot;</span><span class="p">],</span>
+ <span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span><span class="s2">&quot;SINGLE&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>Note that we are changing our X and Y.  Whereas the original X was a word, and the Y was a sequence of morphemes, the X is now going to be a sequence of characters, and the Y is a sequence of tags.  You’re transforming the task from a transduction one into a tagging one (which may or may not be easier).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">BEGIN</span> <span class="o">=</span> <span class="s2">&quot;BEGIN&quot;</span>
+<span class="n">INSIDE</span> <span class="o">=</span> <span class="s2">&quot;INSIDE&quot;</span>
+<span class="n">END</span> <span class="o">=</span> <span class="s2">&quot;END&quot;</span> 
+<span class="n">SINGLE</span> <span class="o">=</span> <span class="s2">&quot;SINGLE&quot;</span>
+
+<span class="c1"># your code here</span>
+<span class="k">def</span> <span class="nf">get_bies_notation</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">result</span>
+<span class="c1"># your code here</span>
+
+<span class="n">trainbies</span> <span class="o">=</span> <span class="n">get_bies_notation</span><span class="p">(</span><span class="n">traindata</span><span class="p">)</span>
+<span class="n">devbies</span> <span class="o">=</span> <span class="n">get_bies_notation</span><span class="p">(</span><span class="n">devdata</span><span class="p">)</span>
+<span class="n">testbies</span> <span class="o">=</span> <span class="n">get_bies_notation</span><span class="p">(</span><span class="n">testdata</span><span class="p">)</span>
+
+<span class="c1"># A few assertions to make sure that your code is working properly.</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">trainbies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[[</span><span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;BEGIN&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;END&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;BEGIN&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;END&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;BEGIN&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;END&#39;</span><span class="p">]])</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">devbies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;BEGIN&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;l&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;END&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;SINGLE&#39;</span><span class="p">]])</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">testbies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;BEGIN&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;END&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;BEGIN&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;END&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;SINGLE&#39;</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="assignment-1-3-from-bies-notation-to-morphemes">
+<h4>Assignment 1.3: From BIES notation to morphemes<a class="headerlink" href="#assignment-1-3-from-bies-notation-to-morphemes" title="Permalink to this heading">#</a></h4>
+<p>rubric={accuracy:5}</p>
+<p>For evaluation purposes, we will need to transform BIES notation produced by our segmentation model back into segmented word forms, i.e. take the following as input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;BEGIN&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;l&#39;</span><span class="p">,</span> <span class="s1">&#39;INSIDE&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;END&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;SINGLE&#39;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>And generate the following as output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s2">&quot;sale&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Implement a function <code class="docutils literal notranslate"><span class="pre">unbies(data)</span></code> that takes a list of examples in BIES format as input and returns a list of pairs in the format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s2">&quot;sales&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;sale&quot;</span><span class="p">,</span><span class="s2">&quot;s&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>The first element in the pair is the unsegmented word form and the second one is the segmented word form.</p>
+<p>We <em>could</em> evaluate at the character level, but it’s disjoint from our goal - we want morphemes, not tagged characters.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># your code here</span>
+<span class="k">def</span> <span class="nf">unbies</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">result</span>
+<span class="c1">#your code here</span>
+
+<span class="c1"># An assertion to make sure that your code is working properly.</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">unbies</span><span class="p">([[[</span><span class="s2">&quot;d&quot;</span><span class="p">,</span><span class="s2">&quot;BEGIN&quot;</span><span class="p">],[</span><span class="s2">&quot;o&quot;</span><span class="p">,</span><span class="s2">&quot;INSIDE&quot;</span><span class="p">],[</span><span class="s2">&quot;g&quot;</span><span class="p">,</span><span class="s2">&quot;END&quot;</span><span class="p">],[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span><span class="s2">&quot;SINGLE&quot;</span><span class="p">]]])</span> <span class="o">==</span> <span class="p">[[</span><span class="s2">&quot;dogs&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;dog&quot;</span><span class="p">,</span><span class="s2">&quot;s&quot;</span><span class="p">]]])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="assignment-2-bpe-baseline">
+<h3>Assignment 2: BPE baseline<a class="headerlink" href="#assignment-2-bpe-baseline" title="Permalink to this heading">#</a></h3>
+<p>You are now going to use the Python library <code class="docutils literal notranslate"><span class="pre">bpe</span></code> to segment the data using byte-pair encoding. This will serve as a baseline for our supervised morpheme segmentation system.</p>
+<p>Start by installing <code class="docutils literal notranslate"><span class="pre">bpe</span></code> using <code class="docutils literal notranslate"><span class="pre">pip</span></code> (follow instructions <a class="reference external" href="https://github.com/soaxelbrooke/python-bpe">here</a>).</p>
+<p>Study the example for using a <code class="docutils literal notranslate"><span class="pre">bpe.Encoder</span></code> model <a class="reference external" href="https://github.com/soaxelbrooke/python-bpe">here</a>. The <code class="docutils literal notranslate"><span class="pre">__init__</span></code> function for <code class="docutils literal notranslate"><span class="pre">Encoder</span></code> takes four arguments:</p>
+<ol class="arabic simple">
+<li><p>the size of the BPE vocabulary,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pct_bpe</span></code>, a real valued parameter, which controls how <code class="docutils literal notranslate"><span class="pre">Encoder</span></code> handles frequent tokens (<code class="docutils literal notranslate"><span class="pre">pct_bpe==1</span></code> will apply BPE to all tokens in the training data and <code class="docutils literal notranslate"><span class="pre">pct_bpe==0</span></code> won’t segment anything)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ngram_max</span></code> which controls the maximal frequency of BPE tokens and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ngram_min</span></code> which contains the minimum frequency of BPE tokens.</p></li>
+</ol>
+<p>You should always set <code class="docutils literal notranslate"><span class="pre">bpe_pct</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code> in order to apply BPE to all tokens. You should set <code class="docutils literal notranslate"><span class="pre">ngram_max</span></code> to a large number like <code class="docutils literal notranslate"><span class="pre">100000</span></code> and <code class="docutils literal notranslate"><span class="pre">ngram_min</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code>. These settings will ensure that <code class="docutils literal notranslate"><span class="pre">bpe.Encoder</span></code> implements the basic BPE algorithm.</p>
+<section id="assignment-2-1-training-a-bpe-model">
+<h4>Assignment 2.1: Training a BPE model<a class="headerlink" href="#assignment-2-1-training-a-bpe-model" title="Permalink to this heading">#</a></h4>
+<p>rubric={accuracy:5}</p>
+<p>You should initialize a <code class="docutils literal notranslate"><span class="pre">bpe.Encoder</span></code> model <code class="docutils literal notranslate"><span class="pre">encoder</span></code> with vocabulary size 64,000. You should then read training data for BPE from the file <code class="docutils literal notranslate"><span class="pre">en-ud-train.txt</span></code> in the sub-directory <code class="docutils literal notranslate"><span class="pre">segmentation_data</span></code> in the <code class="docutils literal notranslate"><span class="pre">.data</span></code> directory. Split the file into lines and call the <code class="docutils literal notranslate"><span class="pre">encoder.fit</span></code> giving the dataset as parameter.  Hint: the data is encoded using UTF-8.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">bpe.encoder</span> <span class="kn">import</span> <span class="n">Encoder</span>
+
+<span class="n">VOCAB_SIZE</span><span class="o">=</span><span class="mi">64000</span>
+<span class="n">PCTBPE</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">NGRAM_MAX</span><span class="o">=</span><span class="mi">1000000</span>
+<span class="n">NGRAM_MIN</span><span class="o">=</span><span class="mi">1</span>
+
+<span class="c1"># your code here</span>
+<span class="c1"># your code here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="assignment-2-2-segmenting-development-and-test-data-using-bpe">
+<h4>Assignment 2.2: Segmenting development and test data using BPE<a class="headerlink" href="#assignment-2-2-segmenting-development-and-test-data-using-bpe" title="Permalink to this heading">#</a></h4>
+<p>rubric={accuracy:5}</p>
+<p>You should now segment the development and test data using your BPE model <code class="docutils literal notranslate"><span class="pre">encoder</span></code>. Perform segmentation on <code class="docutils literal notranslate"><span class="pre">devwords</span></code> and <code class="docutils literal notranslate"><span class="pre">testwords</span></code> which only contain unsegmented word forms. You can use <code class="docutils literal notranslate"><span class="pre">encoder.tokenize</span></code>. Store the result in two lists <code class="docutils literal notranslate"><span class="pre">bpe_tokenized_dev</span></code> and <code class="docutils literal notranslate"><span class="pre">bpe_tokenized_test</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bpe.Encoder</span></code> uses a few special characters to indicate start and end of words (among other things). The special characters always start with two underscores. For example, <code class="docutils literal notranslate"><span class="pre">&quot;__sow&quot;</span></code>. Filter out all special characters from <code class="docutils literal notranslate"><span class="pre">bpe_segmented_dev</span></code> and <code class="docutils literal notranslate"><span class="pre">bpe_segmented_test</span></code> (you can assume that it is safe to filter out tokens starting with a double underscore <code class="docutils literal notranslate"><span class="pre">__</span></code>).</p>
+<p>Examples in <code class="docutils literal notranslate"><span class="pre">bpe_segmented_dev</span></code> and <code class="docutils literal notranslate"><span class="pre">bpe_segmented_test</span></code> should have the following format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;bunk&#39;</span><span class="p">,</span> <span class="s1">&#39;houses&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>(note that this example is actually incorrectly segmented)</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#your code here</span>
+<span class="c1">#your code here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="assignment-3-evaluation">
+<h3>Assignment 3: Evaluation<a class="headerlink" href="#assignment-3-evaluation" title="Permalink to this heading">#</a></h3>
+<p>rubric={accuracy:10}</p>
+<p>We will evaluate segmentation algorithms using precision, recall and f-score on segment boundaries. As an example, let’s say we evaluate against the following gold standard:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="s2">&quot;hot&quot;</span><span class="p">,</span> <span class="s2">&quot;dog&quot;</span><span class="p">,</span><span class="s2">&quot;s&quot;</span><span class="p">],[</span><span class="s2">&quot;king&quot;</span><span class="p">,</span><span class="s2">&quot;s&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>and our segmentation system returned the following segmentation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="s2">&quot;hot&quot;</span><span class="p">,</span><span class="s2">&quot;dog&quot;</span><span class="p">,</span><span class="s2">&quot;s&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;k&quot;</span><span class="p">,</span><span class="s2">&quot;ing&quot;</span><span class="p">,</span><span class="s2">&quot;s&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>The gold standard segment boundaries are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="mi">4</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>and our system gives the following segment boundaries:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>Now three of our segment boundaries are actually found in the gold standard (<code class="docutils literal notranslate"><span class="pre">3</span></code> and <code class="docutils literal notranslate"><span class="pre">6</span></code> for the first example and <code class="docutils literal notranslate"><span class="pre">4</span></code> for the second one). This gives us a precision of <span class="math notranslate nohighlight">\(P = 3/4 = 75\%\)</span> (three of the four morpheme boundaries were found are in the gold standard) and a recall of <span class="math notranslate nohighlight">\(R = 3/3 = 100\%\)</span> (we found two of the three token boundaries given by the gold standard). Finally, we get the f-score as <span class="math notranslate nohighlight">\(2 \cdot P \cdot R /(P+R) \approx 87.5\%\)</span>.</p>
+<p>Implement a function <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> which takes two arguments:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sys_segmented_data</span></code> which is a list of segmented examples like <code class="docutils literal notranslate"><span class="pre">[&quot;k&quot;,&quot;ing&quot;,&quot;s&quot;]</span></code> produced by a segmentation system.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gold_segmented_data</span></code> which is a list of gold standard segmentation examples like <code class="docutils literal notranslate"><span class="pre">[&quot;kings&quot;,[&quot;k&quot;,&quot;ing&quot;,&quot;s&quot;]]</span></code>.</p></li>
+</ol>
+<p>Your function should return the precision, recall and fscore for segment boundaries in <code class="docutils literal notranslate"><span class="pre">sys_segmented_data</span></code>.</p>
+<p><strong>Note!</strong> You should get fscore above 45% for the BPE segmented test set.</p>
+<p>If you want, you can now tune the vocabulary size of <code class="docutils literal notranslate"><span class="pre">bpe.Encoder</span></code> (which we set to 64k) so that it you get maximal performance on the development set.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">sys_segmented_data</span><span class="p">,</span><span class="n">gold_segmented_data</span><span class="p">):</span>
+    <span class="c1"># your code here</span>
+    <span class="c1"># your code here</span>
+
+    <span class="k">return</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">fscore</span>
+    
+<span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">fscore</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">bpe_segmented_test</span><span class="p">,</span><span class="n">testdata</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results for BPE segmentation:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test set precision: </span><span class="si">%.2f</span><span class="s2">, recall: </span><span class="si">%.2f</span><span class="s2">, f-score: </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">fscore</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="assignment-4-supervised-morphological-segmentation">
+<h3>Assignment 4: Supervised morphological segmentation<a class="headerlink" href="#assignment-4-supervised-morphological-segmentation" title="Permalink to this heading">#</a></h3>
+<p>You will now use the Python toolkit <code class="docutils literal notranslate"><span class="pre">pycrfsuite</span></code> to train a supervised morphological segmentation system. You can install <code class="docutils literal notranslate"><span class="pre">pycrfsuite</span></code> using pip (see <a class="reference external" href="https://python-crfsuite.readthedocs.io/en/latest/">Installation</a>).</p>
+<p>To get a better understanding of the <code class="docutils literal notranslate"><span class="pre">pycrfsuite</span></code> toolkit, you can browse through the following <a class="reference external" href="https://github.com/scrapinghub/python-crfsuite/blob/master/examples/CoNLL%202002.ipynb">tutorial</a> for building a NER system using <code class="docutils literal notranslate"><span class="pre">pycrfsuite</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pycrfsuite</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="assignment-4-1-feature-engineering">
+<h4>Assignment 4.1: Feature engineering<a class="headerlink" href="#assignment-4-1-feature-engineering" title="Permalink to this heading">#</a></h4>
+<p>rubric={accuracy:10}</p>
+<p>Our segmentation system is feature based structured CRF tagger and your task now is to implement a feature extraction function called <code class="docutils literal notranslate"><span class="pre">char2features</span></code>. It takes two arguments:</p>
+<ol class="arabic simple">
+<li><p>an example in BIES format (for example, <code class="docutils literal notranslate"><span class="pre">[[&quot;d&quot;,&quot;BEGIN&quot;],[&quot;o&quot;,&quot;INSIDE&quot;],[&quot;g&quot;,&quot;END&quot;],[&quot;s&quot;,&quot;SINGLE&quot;]]</span></code>) and</p></li>
+<li><p>a position in the examples (for example, 2).</p></li>
+</ol>
+<p>As a very simple example consider:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">char2features</span><span class="p">(</span><span class="n">example</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="n">char_at_i</span> <span class="o">=</span> <span class="n">example</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CHARACTER_AT_i=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">char_at_i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">features</span>
+</pre></div>
+</div>
+<p>Given the arguments <code class="docutils literal notranslate"><span class="pre">example</span> <span class="pre">=</span> <span class="pre">[[&quot;d&quot;,&quot;BEGIN&quot;],[&quot;o&quot;,&quot;INSIDE&quot;],[&quot;g&quot;,&quot;END&quot;],[&quot;s&quot;,&quot;SINGLE&quot;]]</span></code> and <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">=</span> <span class="pre">2</span></code>, this function will return <code class="docutils literal notranslate"><span class="pre">[&quot;CHARACTER_AT_i=g&quot;]</span></code>. Although this is a possible feature function, it is probably too simplistic to ensure good segmentation accuracy. You should expand it to include additional features like:</p>
+<ol class="arabic simple">
+<li><p>Surrounding characters around position i.</p></li>
+<li><p>Substrings around position i of varying lengths.</p></li>
+<li><p>Distance to the end of the example and beginning of the example</p></li>
+<li><p>Anything else you can come to think of.</p></li>
+</ol>
+<p>You are allowed to use external datasets for feature engineering. If you do, please make sure to hand in your datasets together with the assignment.</p>
+<p><strong>NOTE!</strong> <code class="docutils literal notranslate"><span class="pre">char2features</span></code> is not allowed to look at the labels (for example, <code class="docutils literal notranslate"><span class="pre">&quot;INSIDE&quot;</span></code>). You may only extract features from the characters in <code class="docutils literal notranslate"><span class="pre">example</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">BOUNDARY</span><span class="o">=</span><span class="s2">&quot;&lt;BD&gt;&quot;</span>
+
+<span class="k">def</span> <span class="nf">char2features</span><span class="p">(</span><span class="n">example</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="c1"># your code here</span>
+    <span class="c1"># your code here</span>
+    <span class="k">return</span> <span class="n">features</span>
+
+<span class="k">def</span> <span class="nf">data2features</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Extract features for a data set in BIES format. &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="n">char2features</span><span class="p">(</span><span class="n">example</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">example</span><span class="p">))]</span> <span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">data2labels</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Extract the tags from a data set in BIES format. &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="n">tok</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">example</span><span class="p">]</span> <span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+
+<span class="c1"># Initialize the training, development and test sets for pycrfsuite.</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">data2features</span><span class="p">(</span><span class="n">trainbies</span><span class="p">)</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">data2labels</span><span class="p">(</span><span class="n">trainbies</span><span class="p">)</span>
+
+<span class="n">X_dev</span> <span class="o">=</span> <span class="n">data2features</span><span class="p">(</span><span class="n">devbies</span><span class="p">)</span>
+<span class="n">y_dev</span> <span class="o">=</span> <span class="n">data2labels</span><span class="p">(</span><span class="n">devbies</span><span class="p">)</span>
+
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">data2features</span><span class="p">(</span><span class="n">testbies</span><span class="p">)</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">data2labels</span><span class="p">(</span><span class="n">testbies</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="assignment-4-2-training-the-segmentation-system">
+<h4>Assignment 4.2: Training the segmentation system<a class="headerlink" href="#assignment-4-2-training-the-segmentation-system" title="Permalink to this heading">#</a></h4>
+<p>rubric={accuracy:5}</p>
+<p>Find out how to train a <code class="docutils literal notranslate"><span class="pre">pycrfsuite</span></code> model in the <a class="reference external" href="https://github.com/scrapinghub/python-crfsuite/blob/master/examples/CoNLL%202002.ipynb">tutorial</a> (for now, just copy the hyper-parameter values from the tutorial). You should train your model using <code class="docutils literal notranslate"><span class="pre">X_train</span></code> and <code class="docutils literal notranslate"><span class="pre">y_train</span></code> which we just created. Save your model in the file <code class="docutils literal notranslate"><span class="pre">segmentation.model</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trainer</span> <span class="o">=</span> <span class="n">pycrfsuite</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># your code here</span>
+<span class="c1"># your code here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="assignment-4-3-fine-tuning-and-segmentation">
+<h4>Assignment 4.3: Fine-tuning and segmentation<a class="headerlink" href="#assignment-4-3-fine-tuning-and-segmentation" title="Permalink to this heading">#</a></h4>
+<p>rubric={accuracy:5}</p>
+<p>You can now segment the development data <code class="docutils literal notranslate"><span class="pre">devbies</span></code> using the function <code class="docutils literal notranslate"><span class="pre">segment</span></code> below. You should get f-score above 84% on the development data. Please tune the L1 and L2 penalty for <code class="docutils literal notranslate"><span class="pre">pycrfsuite.Trainer</span></code> using segmentation f-score on the development data as criterion. Remember that you will need to retrain <code class="docutils literal notranslate"><span class="pre">tagger</span></code> after adjusting the hyperparameter values.</p>
+<p>When you are done with tuning, you can segment the test set.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">segment</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">tagger</span><span class="p">):</span>
+    <span class="n">tagged_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">example</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data2features</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+        <span class="n">tagged_example</span> <span class="o">=</span> <span class="p">[(</span><span class="n">char</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">char</span><span class="p">,</span> <span class="n">_</span><span class="p">),</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">tags</span><span class="p">)]</span>
+        <span class="n">tagged_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tagged_example</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">segmented</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span><span class="n">segmented</span> <span class="ow">in</span> <span class="n">unbies</span><span class="p">(</span><span class="n">tagged_data</span><span class="p">)]</span>
+    
+<span class="n">tagger</span> <span class="o">=</span> <span class="n">pycrfsuite</span><span class="o">.</span><span class="n">Tagger</span><span class="p">()</span>
+<span class="n">tagger</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;segmentation.model&#39;</span><span class="p">)</span>
+
+<span class="n">supervised_tokenized_dev</span> <span class="o">=</span> <span class="n">segment</span><span class="p">(</span><span class="n">devbies</span><span class="p">,</span><span class="n">tagger</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results for supervised segmentation:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Development set precision: </span><span class="si">%.2f</span><span class="s2">, recall: </span><span class="si">%.2f</span><span class="s2">, f-score: </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">supervised_tokenized_dev</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span><span class="n">devdata</span><span class="p">[:</span><span class="mi">10</span><span class="p">]))</span>
+<span class="n">supervised_tokenized_dev</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
+
+<span class="c1"># When you&#39;re done tuning the hyper-parameters, uncomment the lines below to segment the test data.</span>
+
+<span class="c1">#supervised_tokenized_test = segment(testbies,tagger)</span>
+<span class="c1">#print(&quot;Results for supervised segmentation:&quot;)</span>
+<span class="c1">#print(&quot;Test set precision: %.2f, recall: %.2f, f-score: %.2f&quot; % evaluate(supervised_tokenized_test,testdata))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="qualitative-analysis">
+<h4>4.4 Qualitative analysis<a class="headerlink" href="#qualitative-analysis" title="Permalink to this heading">#</a></h4>
+<p>rubric={reasoning: 4}</p>
+<p>Take a look at the errors made by the BPE model and the supervised model (you may need to modify your evaluation function).  Answer the following questions (and provide some examples):</p>
+<ul class="simple">
+<li><p>Are the models prone to over-segmentation (too many boundaries) or under-segmentation (too few boundaries)?  Or are the boundaries just in the wrong place?</p></li>
+<li><p>Do the models make the same mistakes (but the supervised model just makes fewer of them), or do they make different types of errors?</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Your answer here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="assignment-4-5-ablation-test-optional">
+<h4>Assignment 4.5: Ablation Test (Optional)<a class="headerlink" href="#assignment-4-5-ablation-test-optional" title="Permalink to this heading">#</a></h4>
+<p>rubric={raw: 4}</p>
+<p>Run an ablation test on your CRF model, and determine which of your features were the most useful.  Remember that an ablation test removes 1 feature (or set of features) from a feature vector, and re-evaluates the model.  The most useful features are those that lead to the biggest drop in the metric after their removal.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Your answer here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./archive"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="intro.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Welcome to your Jupyter Book</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="Lab3.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Colx 525 Lab Assignment 3: POS Tagging</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-objectives">Assignment objectives</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting started</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tidy-submission">Tidy Submission</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-reading-in-data">Assignment 1: Reading in data</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-1-reading-data-files-into-lists">Assignment 1.1: Reading data files into lists</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-2-bies-notation">Assignment 1.2: BIES notation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-3-from-bies-notation-to-morphemes">Assignment 1.3: From BIES notation to morphemes</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-2-bpe-baseline">Assignment 2: BPE baseline</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-2-1-training-a-bpe-model">Assignment 2.1: Training a BPE model</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-2-2-segmenting-development-and-test-data-using-bpe">Assignment 2.2: Segmenting development and test data using BPE</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-3-evaluation">Assignment 3: Evaluation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-4-supervised-morphological-segmentation">Assignment 4: Supervised morphological segmentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-4-1-feature-engineering">Assignment 4.1: Feature engineering</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-4-2-training-the-segmentation-system">Assignment 4.2: Training the segmentation system</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-4-3-fine-tuning-and-segmentation">Assignment 4.3: Fine-tuning and segmentation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#qualitative-analysis">4.4 Qualitative analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-4-5-ablation-test-optional">Assignment 4.5: Ablation Test (Optional)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Yuchen Li
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

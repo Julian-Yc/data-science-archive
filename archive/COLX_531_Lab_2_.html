@@ -1,0 +1,2225 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>COLX 531 Lab 2. Training transformers efficiently &#8212; Yuchen&#39;s Projects Collection</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'archive/COLX_531_Lab_2_';</script>
+    <link rel="shortcut icon" href="../_static/linkedin.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Markdown Files" href="markdown.html" />
+    <link rel="prev" title="Notebooks with MyST Markdown" href="markdown-notebooks.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="Yuchen's Projects Collection - Home"/>
+    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="Yuchen's Projects Collection - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Lab2.html">Colx 525 Lab Assignment 2: Morphological Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Lab3.html">Colx 525 Lab Assignment 3: POS Tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Content with notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="markdown-notebooks.html">Notebooks with MyST Markdown</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">COLX 531 Lab 2. Training transformers efficiently</a></li>
+
+
+
+<li class="toctree-l1"><a class="reference internal" href="markdown.html">Markdown Files</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/Julian-Yc/data-science-archive" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/Julian-Yc/data-science-archive/issues/new?title=Issue%20on%20page%20%2Farchive/COLX_531_Lab_2_.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/archive/COLX_531_Lab_2_.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>COLX 531 Lab 2. Training transformers efficiently</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">COLX 531 Lab 2. Training transformers efficiently</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#objective">Objective</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-1">Assignment 1.1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-2">Assignment 1.2</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#lab2-adam">lab2_adam</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#lab2-efficient">lab2_efficient</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#lab2-8bit-adam">lab2_8bit_adam</a></li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="colx-531-lab-2-training-transformers-efficiently">
+<h1>COLX 531 Lab 2. Training transformers efficiently<a class="headerlink" href="#colx-531-lab-2-training-transformers-efficiently" title="Permalink to this heading">#</a></h1>
+<p>You can find a list of techniques to optimize training efficiency <a class="reference external" href="https://huggingface.co/docs/transformers/perf_train_gpu_one">here</a>. Please make extensive use of the public documentation to understand what this notebook does.</p>
+<section id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Understanding the trade-off between different training optimization techniques.</p></li>
+<li><p>Apply various optimization techniques to speed up training or reduce memory usage.</p></li>
+</ol>
+<p>Instructions:</p>
+<ol class="arabic simple">
+<li><p>Register for an account on <a class="reference external" href="https://wandb.ai/site">Weights &amp; Biases</a>;</p></li>
+<li><p>Run the training code below. You are asked to log the whole training process with W&amp;B. Each run takes less than 2 hours. Please do not change the code except for a few lines.</p></li>
+<li><p>When you submit, <strong>please also submit a pdf version of your notebook</strong>.</p></li>
+<li><p>This assignment requires the use of a GPU. Theoretically, it could be completed with the free tier of Colab.</p></li>
+</ol>
+</section>
+<section id="assignment-1-1">
+<h2>Assignment 1.1<a class="headerlink" href="#assignment-1-1" title="Permalink to this heading">#</a></h2>
+<p>rubric={accuracy:15}</p>
+<p>During model training, sync training statistics to your Weights &amp; Biases page under your own account. Please paste the link to your W&amp;B page to all your models. You should use <strong>COLX531</strong> as the project name and <strong>lab2_adam</strong> / <strong>lab2_efficient</strong> / <strong>lab2_8bit_adam</strong> as the run names for these models respectively. They must be separate runs of the same project.</p>
+<p><strong>Note</strong>. you must make this W&amp;B page public. Ohterwise we cannot grade your answer. If we cannot access your W&amp;B page during grading, we will assign 0 to this question. However, you can also submit a screenshot of your W&amp;B page. But your username <strong>must</strong> be included in the screenshot.</p>
+<ol class="arabic simple">
+<li><p><strong>lab2_adam</strong><br />
+Train a machine translation model using the original code. Use the 32-bit adam optimizer and an effective batch size of 128 (hint: use gradient accumulation).</p></li>
+<li><p><strong>lab2_efficient</strong><br />
+Keep all hyperparameters of <strong>lab2_adam</strong> except for the following settings. Apply gradient checkpointing and mixed-precision training (fp16 or bf16).
+Adjust your batch size and gradient accumulation of fit the released memory. But you must keep an effective batch size of 128.</p></li>
+<li><p><strong>lab2_8bit_adam</strong><br />
+Keep all hyperparameters of <strong>lab2_efficient</strong> except for the following settings. Use 8-bit adam optimizer as your optimizer. Adjust your batch size and gradient accumulation of fit the released memory. Adjust your batch size and gradient accumulation of fit the released memory. But you must keep an effective batch size of 128. You are expected to install <code class="docutils literal notranslate"><span class="pre">bitsandbytes</span></code> to use the 8-bit adam optimizer.</p></li>
+</ol>
+</section>
+<section id="assignment-1-2">
+<h2>Assignment 1.2<a class="headerlink" href="#assignment-1-2" title="Permalink to this heading">#</a></h2>
+<p>rubric={accuracy:20}</p>
+<p>Please answer the following questions <strong>in your own words</strong>. Ansers that are copied from existing sources without paraphrasing will not be graded.</p>
+<ol class="arabic simple">
+<li><p>What is gradient checkpointing? What does it do?</p></li>
+<li><p>What is a learning rate scheduler? What is warm-up? Why are they helpful?</p></li>
+<li><p>Compare lab2_adam / lab2_efficient / lab2_8bit_adam and discuss how different techniques save memory and enable faster training. (Please inspect your w&amp;b page before answering this question. Hint: Check out the <code class="docutils literal notranslate"><span class="pre">Process</span> <span class="pre">GPU</span> <span class="pre">Memory</span> <span class="pre">Allocated</span> <span class="pre">(%)</span></code> panel).</p></li>
+<li><p>Are there any differences between the 32-bit adam optimizer and the 8-bit adam optimizer in terms of loss/bleu/training speed? (Please inspect your w&amp;b page before answering this question).</p></li>
+</ol>
+<p>my w&amp;b page link: <a class="reference external" href="https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2?nw=nwuseryuchenlicn">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2?nw=nwuseryuchenlicn</a></p>
+<ol class="arabic simple">
+<li><p>What is gradient checkpointing? What does it do?</p></li>
+</ol>
+<p>Gradient checkpoint is a memory-saving technique by reducing the GPU memory use during the training.</p>
+<p>Normally, deep models store all intermediate activations for backpropagation.</p>
+<p>But with gradient checkpointing, only a subset of activations is stored while others are recomputed when needed.</p>
+<ol class="arabic simple" start="2">
+<li><p>What is a learning rate scheduler? What is warm-up? Why are they helpful?</p></li>
+</ol>
+<p>A learning rate scheduler adjusts the learning rate dynamically during training instead of keeping it constant. It will be efficient for convergence.</p>
+<p>Warm-up is a technique where the learning rate starts small and gradually increases at the beginning of training. It can be stable at early training.</p>
+<ol class="arabic simple" start="3">
+<li><p>Compare lab2_adam / lab2_efficient / lab2_8bit_adam and discuss how different techniques save memory and enable faster training. (Please inspect your w&amp;b page before answering this question. Hint: Check out the Process GPU Memory Allocated (%) panel).</p></li>
+</ol>
+<p><img alt="image.png" src="archive/attachment:57a1c95e-725f-4d90-b723-1e2b09baf663.png" /></p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>BLEU Score</p></th>
+<th class="head"><p>Training Loss</p></th>
+<th class="head"><p>Speed (samples/s)</p></th>
+<th class="head"><p>GPU Usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>lab2_adam</p></td>
+<td><p>43.24</p></td>
+<td><p>1.5541</p></td>
+<td><p>68.60</p></td>
+<td><p>~100%</p></td>
+</tr>
+<tr class="row-odd"><td><p>lab2_efficient</p></td>
+<td><p>44.34</p></td>
+<td><p>1.3942</p></td>
+<td><p>154.88</p></td>
+<td><p>~65%</p></td>
+</tr>
+<tr class="row-even"><td><p>lab2_8bit_adam</p></td>
+<td><p>44.83</p></td>
+<td><p>1.3072</p></td>
+<td><p>159.45</p></td>
+<td><p>~85%</p></td>
+</tr>
+</tbody>
+</table>
+<p>8-bit Adam achieves the best BLEU score and the lowest training loss, indicating better performance. It also has the fastest training speed, slightly surpassing the efficient method. In terms of memory usage, gradient checkpointing reduces GPU memory usage the most (~35% lower than Adam), while 8-bit Adam still offers a moderate reduction (~15% lower than Adam) while maintaining high speed.</p>
+<ol class="arabic simple" start="4">
+<li><p>Are there any differences between the 32-bit adam optimizer and the 8-bit adam optimizer in terms of loss/bleu/training speed? (Please inspect your w&amp;b page before answering this question).</p></li>
+</ol>
+<p><img alt="image.png" src="archive/attachment:3aee6e2f-2e94-4ea0-a9ab-df97076a093b.png" />
+<img alt="image.png" src="archive/attachment:6d08ba88-1b96-4a99-8349-56522d21d64f.png" />
+<img alt="image.png" src="archive/attachment:95dc342f-a283-4252-bdf5-4d4877d2b89c.png" /></p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>32-bit Adam (lab2_adam)</p></th>
+<th class="head"><p>8-bit Adam (lab2_8bit_adam)</p></th>
+<th class="head"><p>Difference</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>BLEU Score</p></td>
+<td><p>43.24</p></td>
+<td><p>44.83</p></td>
+<td><p>+1.59</p></td>
+</tr>
+<tr class="row-odd"><td><p>Training Loss</p></td>
+<td><p>1.5541</p></td>
+<td><p>1.3072</p></td>
+<td><p>Lower</p></td>
+</tr>
+<tr class="row-even"><td><p>Training Speed (samples/s)</p></td>
+<td><p>68.60</p></td>
+<td><p>159.45</p></td>
+<td><p>2.3x faster</p></td>
+</tr>
+<tr class="row-odd"><td><p>Memory Usage</p></td>
+<td><p>High</p></td>
+<td><p>Lower</p></td>
+<td><p>Optimized</p></td>
+</tr>
+</tbody>
+</table>
+<p>8-bit Adam achieves a <strong>higher BLEU score</strong>, indicating better translation quality. It also results in a <strong>lower training loss</strong>, suggesting improved convergence. Additionally, <strong>training speed is more than twice as fast</strong>, making it a more efficient choice. In terms of memory usage, 8-bit Adam significantly reduces the optimizer state size, leading to <strong>better GPU efficiency</strong>.</p>
+<p>Overall, <strong>8-bit Adam outperforms 32-bit Adam in all aspects</strong>, making it the preferred choice unless numerical precision is a concern.</p>
+<p>Install the wandb, Transformers, Datasets, and Evaluate libraries to run this notebook.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install the wandb, Transformers, Datasets, and Evaluate libraries  (your comment should look like this)</span>
+<span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>datasets<span class="w"> </span>evaluate<span class="w"> </span>transformers<span class="o">[</span>sentencepiece<span class="o">]</span>
+<span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>accelerate<span class="w"> </span>bitsandbytes
+<span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>wandb
+<span class="c1"># To run the training on TPU, you will need to uncomment the following line:</span>
+<span class="c1"># !pip install cloud-tpu-client==0.10 torch==1.9.0 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.9-cp37-cp37m-linux_x86_64.whl</span>
+<span class="o">!</span>apt<span class="w"> </span>install<span class="w"> </span>git-lfs
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Collecting datasets
+  Downloading datasets-3.3.2-py3-none-any.whl.metadata (19 kB)
+Collecting evaluate
+  Downloading evaluate-0.4.3-py3-none-any.whl.metadata (9.2 kB)
+Requirement already satisfied: transformers[sentencepiece] in /usr/local/lib/python3.11/dist-packages (4.48.3)
+Requirement already satisfied: filelock in /usr/local/lib/python3.11/dist-packages (from datasets) (3.17.0)
+Requirement already satisfied: numpy&gt;=1.17 in /usr/local/lib/python3.11/dist-packages (from datasets) (1.26.4)
+Requirement already satisfied: pyarrow&gt;=15.0.0 in /usr/local/lib/python3.11/dist-packages (from datasets) (18.1.0)
+Collecting dill&lt;0.3.9,&gt;=0.3.0 (from datasets)
+  Downloading dill-0.3.8-py3-none-any.whl.metadata (10 kB)
+Requirement already satisfied: pandas in /usr/local/lib/python3.11/dist-packages (from datasets) (2.2.2)
+Requirement already satisfied: requests&gt;=2.32.2 in /usr/local/lib/python3.11/dist-packages (from datasets) (2.32.3)
+Requirement already satisfied: tqdm&gt;=4.66.3 in /usr/local/lib/python3.11/dist-packages (from datasets) (4.67.1)
+Collecting xxhash (from datasets)
+  Downloading xxhash-3.5.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (12 kB)
+Collecting multiprocess&lt;0.70.17 (from datasets)
+  Downloading multiprocess-0.70.16-py311-none-any.whl.metadata (7.2 kB)
+Requirement already satisfied: fsspec&lt;=2024.12.0,&gt;=2023.1.0 in /usr/local/lib/python3.11/dist-packages (from fsspec[http]&lt;=2024.12.0,&gt;=2023.1.0-&gt;datasets) (2024.10.0)
+Requirement already satisfied: aiohttp in /usr/local/lib/python3.11/dist-packages (from datasets) (3.11.13)
+Requirement already satisfied: huggingface-hub&gt;=0.24.0 in /usr/local/lib/python3.11/dist-packages (from datasets) (0.28.1)
+Requirement already satisfied: packaging in /usr/local/lib/python3.11/dist-packages (from datasets) (24.2)
+Requirement already satisfied: pyyaml&gt;=5.1 in /usr/local/lib/python3.11/dist-packages (from datasets) (6.0.2)
+Requirement already satisfied: regex!=2019.12.17 in /usr/local/lib/python3.11/dist-packages (from transformers[sentencepiece]) (2024.11.6)
+Requirement already satisfied: tokenizers&lt;0.22,&gt;=0.21 in /usr/local/lib/python3.11/dist-packages (from transformers[sentencepiece]) (0.21.0)
+Requirement already satisfied: safetensors&gt;=0.4.1 in /usr/local/lib/python3.11/dist-packages (from transformers[sentencepiece]) (0.5.3)
+Requirement already satisfied: sentencepiece!=0.1.92,&gt;=0.1.91 in /usr/local/lib/python3.11/dist-packages (from transformers[sentencepiece]) (0.2.0)
+Requirement already satisfied: protobuf in /usr/local/lib/python3.11/dist-packages (from transformers[sentencepiece]) (4.25.6)
+Requirement already satisfied: aiohappyeyeballs&gt;=2.3.0 in /usr/local/lib/python3.11/dist-packages (from aiohttp-&gt;datasets) (2.4.6)
+Requirement already satisfied: aiosignal&gt;=1.1.2 in /usr/local/lib/python3.11/dist-packages (from aiohttp-&gt;datasets) (1.3.2)
+Requirement already satisfied: attrs&gt;=17.3.0 in /usr/local/lib/python3.11/dist-packages (from aiohttp-&gt;datasets) (25.1.0)
+Requirement already satisfied: frozenlist&gt;=1.1.1 in /usr/local/lib/python3.11/dist-packages (from aiohttp-&gt;datasets) (1.5.0)
+Requirement already satisfied: multidict&lt;7.0,&gt;=4.5 in /usr/local/lib/python3.11/dist-packages (from aiohttp-&gt;datasets) (6.1.0)
+Requirement already satisfied: propcache&gt;=0.2.0 in /usr/local/lib/python3.11/dist-packages (from aiohttp-&gt;datasets) (0.3.0)
+Requirement already satisfied: yarl&lt;2.0,&gt;=1.17.0 in /usr/local/lib/python3.11/dist-packages (from aiohttp-&gt;datasets) (1.18.3)
+Requirement already satisfied: typing-extensions&gt;=3.7.4.3 in /usr/local/lib/python3.11/dist-packages (from huggingface-hub&gt;=0.24.0-&gt;datasets) (4.12.2)
+Requirement already satisfied: charset-normalizer&lt;4,&gt;=2 in /usr/local/lib/python3.11/dist-packages (from requests&gt;=2.32.2-&gt;datasets) (3.4.1)
+Requirement already satisfied: idna&lt;4,&gt;=2.5 in /usr/local/lib/python3.11/dist-packages (from requests&gt;=2.32.2-&gt;datasets) (3.10)
+Requirement already satisfied: urllib3&lt;3,&gt;=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests&gt;=2.32.2-&gt;datasets) (2.3.0)
+Requirement already satisfied: certifi&gt;=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests&gt;=2.32.2-&gt;datasets) (2025.1.31)
+Requirement already satisfied: python-dateutil&gt;=2.8.2 in /usr/local/lib/python3.11/dist-packages (from pandas-&gt;datasets) (2.8.2)
+Requirement already satisfied: pytz&gt;=2020.1 in /usr/local/lib/python3.11/dist-packages (from pandas-&gt;datasets) (2025.1)
+Requirement already satisfied: tzdata&gt;=2022.7 in /usr/local/lib/python3.11/dist-packages (from pandas-&gt;datasets) (2025.1)
+Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.11/dist-packages (from python-dateutil&gt;=2.8.2-&gt;pandas-&gt;datasets) (1.17.0)
+Downloading datasets-3.3.2-py3-none-any.whl (485 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">485.4/485.4 kB</span> <span class=" -Color -Color-Red">14.6 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading evaluate-0.4.3-py3-none-any.whl (84 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">84.0/84.0 kB</span> <span class=" -Color -Color-Red">7.6 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading dill-0.3.8-py3-none-any.whl (116 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">116.3/116.3 kB</span> <span class=" -Color -Color-Red">12.5 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading multiprocess-0.70.16-py311-none-any.whl (143 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">143.5/143.5 kB</span> <span class=" -Color -Color-Red">14.8 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading xxhash-3.5.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (194 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">194.8/194.8 kB</span> <span class=" -Color -Color-Red">20.2 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hInstalling collected packages: xxhash, dill, multiprocess, datasets, evaluate
+Successfully installed datasets-3.3.2 dill-0.3.8 evaluate-0.4.3 multiprocess-0.70.16 xxhash-3.5.0
+Requirement already satisfied: accelerate in /usr/local/lib/python3.11/dist-packages (1.3.0)
+Collecting bitsandbytes
+  Downloading bitsandbytes-0.45.3-py3-none-manylinux_2_24_x86_64.whl.metadata (5.0 kB)
+Requirement already satisfied: numpy&lt;3.0.0,&gt;=1.17 in /usr/local/lib/python3.11/dist-packages (from accelerate) (1.26.4)
+Requirement already satisfied: packaging&gt;=20.0 in /usr/local/lib/python3.11/dist-packages (from accelerate) (24.2)
+Requirement already satisfied: psutil in /usr/local/lib/python3.11/dist-packages (from accelerate) (5.9.5)
+Requirement already satisfied: pyyaml in /usr/local/lib/python3.11/dist-packages (from accelerate) (6.0.2)
+Requirement already satisfied: torch&gt;=2.0.0 in /usr/local/lib/python3.11/dist-packages (from accelerate) (2.5.1+cu124)
+Requirement already satisfied: huggingface-hub&gt;=0.21.0 in /usr/local/lib/python3.11/dist-packages (from accelerate) (0.28.1)
+Requirement already satisfied: safetensors&gt;=0.4.3 in /usr/local/lib/python3.11/dist-packages (from accelerate) (0.5.3)
+Requirement already satisfied: filelock in /usr/local/lib/python3.11/dist-packages (from huggingface-hub&gt;=0.21.0-&gt;accelerate) (3.17.0)
+Requirement already satisfied: fsspec&gt;=2023.5.0 in /usr/local/lib/python3.11/dist-packages (from huggingface-hub&gt;=0.21.0-&gt;accelerate) (2024.10.0)
+Requirement already satisfied: requests in /usr/local/lib/python3.11/dist-packages (from huggingface-hub&gt;=0.21.0-&gt;accelerate) (2.32.3)
+Requirement already satisfied: tqdm&gt;=4.42.1 in /usr/local/lib/python3.11/dist-packages (from huggingface-hub&gt;=0.21.0-&gt;accelerate) (4.67.1)
+Requirement already satisfied: typing-extensions&gt;=3.7.4.3 in /usr/local/lib/python3.11/dist-packages (from huggingface-hub&gt;=0.21.0-&gt;accelerate) (4.12.2)
+Requirement already satisfied: networkx in /usr/local/lib/python3.11/dist-packages (from torch&gt;=2.0.0-&gt;accelerate) (3.4.2)
+Requirement already satisfied: jinja2 in /usr/local/lib/python3.11/dist-packages (from torch&gt;=2.0.0-&gt;accelerate) (3.1.5)
+Collecting nvidia-cuda-nvrtc-cu12==12.4.127 (from torch&gt;=2.0.0-&gt;accelerate)
+  Downloading nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cuda-runtime-cu12==12.4.127 (from torch&gt;=2.0.0-&gt;accelerate)
+  Downloading nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cuda-cupti-cu12==12.4.127 (from torch&gt;=2.0.0-&gt;accelerate)
+  Downloading nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cudnn-cu12==9.1.0.70 (from torch&gt;=2.0.0-&gt;accelerate)
+  Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cublas-cu12==12.4.5.8 (from torch&gt;=2.0.0-&gt;accelerate)
+  Downloading nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cufft-cu12==11.2.1.3 (from torch&gt;=2.0.0-&gt;accelerate)
+  Downloading nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-curand-cu12==10.3.5.147 (from torch&gt;=2.0.0-&gt;accelerate)
+  Downloading nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cusolver-cu12==11.6.1.9 (from torch&gt;=2.0.0-&gt;accelerate)
+  Downloading nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cusparse-cu12==12.3.1.170 (from torch&gt;=2.0.0-&gt;accelerate)
+  Downloading nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)
+Requirement already satisfied: nvidia-nccl-cu12==2.21.5 in /usr/local/lib/python3.11/dist-packages (from torch&gt;=2.0.0-&gt;accelerate) (2.21.5)
+Requirement already satisfied: nvidia-nvtx-cu12==12.4.127 in /usr/local/lib/python3.11/dist-packages (from torch&gt;=2.0.0-&gt;accelerate) (12.4.127)
+Collecting nvidia-nvjitlink-cu12==12.4.127 (from torch&gt;=2.0.0-&gt;accelerate)
+  Downloading nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Requirement already satisfied: triton==3.1.0 in /usr/local/lib/python3.11/dist-packages (from torch&gt;=2.0.0-&gt;accelerate) (3.1.0)
+Requirement already satisfied: sympy==1.13.1 in /usr/local/lib/python3.11/dist-packages (from torch&gt;=2.0.0-&gt;accelerate) (1.13.1)
+Requirement already satisfied: mpmath&lt;1.4,&gt;=1.1.0 in /usr/local/lib/python3.11/dist-packages (from sympy==1.13.1-&gt;torch&gt;=2.0.0-&gt;accelerate) (1.3.0)
+Requirement already satisfied: MarkupSafe&gt;=2.0 in /usr/local/lib/python3.11/dist-packages (from jinja2-&gt;torch&gt;=2.0.0-&gt;accelerate) (3.0.2)
+Requirement already satisfied: charset-normalizer&lt;4,&gt;=2 in /usr/local/lib/python3.11/dist-packages (from requests-&gt;huggingface-hub&gt;=0.21.0-&gt;accelerate) (3.4.1)
+Requirement already satisfied: idna&lt;4,&gt;=2.5 in /usr/local/lib/python3.11/dist-packages (from requests-&gt;huggingface-hub&gt;=0.21.0-&gt;accelerate) (3.10)
+Requirement already satisfied: urllib3&lt;3,&gt;=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests-&gt;huggingface-hub&gt;=0.21.0-&gt;accelerate) (2.3.0)
+Requirement already satisfied: certifi&gt;=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests-&gt;huggingface-hub&gt;=0.21.0-&gt;accelerate) (2025.1.31)
+Downloading bitsandbytes-0.45.3-py3-none-manylinux_2_24_x86_64.whl (76.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">76.1/76.1 MB</span> <span class=" -Color -Color-Red">11.8 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl (363.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">363.4/363.4 MB</span> <span class=" -Color -Color-Red">3.9 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (13.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">13.8/13.8 MB</span> <span class=" -Color -Color-Red">106.0 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (24.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">24.6/24.6 MB</span> <span class=" -Color -Color-Red">62.5 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (883 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">883.7/883.7 kB</span> <span class=" -Color -Color-Red">46.5 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">664.8/664.8 MB</span> <span class=" -Color -Color-Red">1.1 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl (211.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">211.5/211.5 MB</span> <span class=" -Color -Color-Red">5.6 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl (56.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">56.3/56.3 MB</span> <span class=" -Color -Color-Red">14.0 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl (127.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">127.9/127.9 MB</span> <span class=" -Color -Color-Red">7.6 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl (207.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">207.5/207.5 MB</span> <span class=" -Color -Color-Red">5.8 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (21.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">21.1/21.1 MB</span> <span class=" -Color -Color-Red">97.7 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hInstalling collected packages: nvidia-nvjitlink-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, nvidia-cusparse-cu12, nvidia-cudnn-cu12, nvidia-cusolver-cu12, bitsandbytes
+  Attempting uninstall: nvidia-nvjitlink-cu12
+    Found existing installation: nvidia-nvjitlink-cu12 12.5.82
+    Uninstalling nvidia-nvjitlink-cu12-12.5.82:
+      Successfully uninstalled nvidia-nvjitlink-cu12-12.5.82
+  Attempting uninstall: nvidia-curand-cu12
+    Found existing installation: nvidia-curand-cu12 10.3.6.82
+    Uninstalling nvidia-curand-cu12-10.3.6.82:
+      Successfully uninstalled nvidia-curand-cu12-10.3.6.82
+  Attempting uninstall: nvidia-cufft-cu12
+    Found existing installation: nvidia-cufft-cu12 11.2.3.61
+    Uninstalling nvidia-cufft-cu12-11.2.3.61:
+      Successfully uninstalled nvidia-cufft-cu12-11.2.3.61
+  Attempting uninstall: nvidia-cuda-runtime-cu12
+    Found existing installation: nvidia-cuda-runtime-cu12 12.5.82
+    Uninstalling nvidia-cuda-runtime-cu12-12.5.82:
+      Successfully uninstalled nvidia-cuda-runtime-cu12-12.5.82
+  Attempting uninstall: nvidia-cuda-nvrtc-cu12
+    Found existing installation: nvidia-cuda-nvrtc-cu12 12.5.82
+    Uninstalling nvidia-cuda-nvrtc-cu12-12.5.82:
+      Successfully uninstalled nvidia-cuda-nvrtc-cu12-12.5.82
+  Attempting uninstall: nvidia-cuda-cupti-cu12
+    Found existing installation: nvidia-cuda-cupti-cu12 12.5.82
+    Uninstalling nvidia-cuda-cupti-cu12-12.5.82:
+      Successfully uninstalled nvidia-cuda-cupti-cu12-12.5.82
+  Attempting uninstall: nvidia-cublas-cu12
+    Found existing installation: nvidia-cublas-cu12 12.5.3.2
+    Uninstalling nvidia-cublas-cu12-12.5.3.2:
+      Successfully uninstalled nvidia-cublas-cu12-12.5.3.2
+  Attempting uninstall: nvidia-cusparse-cu12
+    Found existing installation: nvidia-cusparse-cu12 12.5.1.3
+    Uninstalling nvidia-cusparse-cu12-12.5.1.3:
+      Successfully uninstalled nvidia-cusparse-cu12-12.5.1.3
+  Attempting uninstall: nvidia-cudnn-cu12
+    Found existing installation: nvidia-cudnn-cu12 9.3.0.75
+    Uninstalling nvidia-cudnn-cu12-9.3.0.75:
+      Successfully uninstalled nvidia-cudnn-cu12-9.3.0.75
+  Attempting uninstall: nvidia-cusolver-cu12
+    Found existing installation: nvidia-cusolver-cu12 11.6.3.83
+    Uninstalling nvidia-cusolver-cu12-11.6.3.83:
+      Successfully uninstalled nvidia-cusolver-cu12-11.6.3.83
+Successfully installed bitsandbytes-0.45.3 nvidia-cublas-cu12-12.4.5.8 nvidia-cuda-cupti-cu12-12.4.127 nvidia-cuda-nvrtc-cu12-12.4.127 nvidia-cuda-runtime-cu12-12.4.127 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.2.1.3 nvidia-curand-cu12-10.3.5.147 nvidia-cusolver-cu12-11.6.1.9 nvidia-cusparse-cu12-12.3.1.170 nvidia-nvjitlink-cu12-12.4.127
+Requirement already satisfied: wandb in /usr/local/lib/python3.11/dist-packages (0.19.7)
+Requirement already satisfied: click!=8.0.0,&gt;=7.1 in /usr/local/lib/python3.11/dist-packages (from wandb) (8.1.8)
+Requirement already satisfied: docker-pycreds&gt;=0.4.0 in /usr/local/lib/python3.11/dist-packages (from wandb) (0.4.0)
+Requirement already satisfied: gitpython!=3.1.29,&gt;=1.0.0 in /usr/local/lib/python3.11/dist-packages (from wandb) (3.1.44)
+Requirement already satisfied: platformdirs in /usr/local/lib/python3.11/dist-packages (from wandb) (4.3.6)
+Requirement already satisfied: protobuf!=4.21.0,!=5.28.0,&lt;6,&gt;=3.19.0 in /usr/local/lib/python3.11/dist-packages (from wandb) (4.25.6)
+Requirement already satisfied: psutil&gt;=5.0.0 in /usr/local/lib/python3.11/dist-packages (from wandb) (5.9.5)
+Requirement already satisfied: pydantic&lt;3,&gt;=2.6 in /usr/local/lib/python3.11/dist-packages (from wandb) (2.10.6)
+Requirement already satisfied: pyyaml in /usr/local/lib/python3.11/dist-packages (from wandb) (6.0.2)
+Requirement already satisfied: requests&lt;3,&gt;=2.0.0 in /usr/local/lib/python3.11/dist-packages (from wandb) (2.32.3)
+Requirement already satisfied: sentry-sdk&gt;=2.0.0 in /usr/local/lib/python3.11/dist-packages (from wandb) (2.22.0)
+Requirement already satisfied: setproctitle in /usr/local/lib/python3.11/dist-packages (from wandb) (1.3.5)
+Requirement already satisfied: setuptools in /usr/local/lib/python3.11/dist-packages (from wandb) (75.1.0)
+Requirement already satisfied: typing-extensions&lt;5,&gt;=4.4 in /usr/local/lib/python3.11/dist-packages (from wandb) (4.12.2)
+Requirement already satisfied: six&gt;=1.4.0 in /usr/local/lib/python3.11/dist-packages (from docker-pycreds&gt;=0.4.0-&gt;wandb) (1.17.0)
+Requirement already satisfied: gitdb&lt;5,&gt;=4.0.1 in /usr/local/lib/python3.11/dist-packages (from gitpython!=3.1.29,&gt;=1.0.0-&gt;wandb) (4.0.12)
+Requirement already satisfied: annotated-types&gt;=0.6.0 in /usr/local/lib/python3.11/dist-packages (from pydantic&lt;3,&gt;=2.6-&gt;wandb) (0.7.0)
+Requirement already satisfied: pydantic-core==2.27.2 in /usr/local/lib/python3.11/dist-packages (from pydantic&lt;3,&gt;=2.6-&gt;wandb) (2.27.2)
+Requirement already satisfied: charset-normalizer&lt;4,&gt;=2 in /usr/local/lib/python3.11/dist-packages (from requests&lt;3,&gt;=2.0.0-&gt;wandb) (3.4.1)
+Requirement already satisfied: idna&lt;4,&gt;=2.5 in /usr/local/lib/python3.11/dist-packages (from requests&lt;3,&gt;=2.0.0-&gt;wandb) (3.10)
+Requirement already satisfied: urllib3&lt;3,&gt;=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests&lt;3,&gt;=2.0.0-&gt;wandb) (2.3.0)
+Requirement already satisfied: certifi&gt;=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests&lt;3,&gt;=2.0.0-&gt;wandb) (2025.1.31)
+Requirement already satisfied: smmap&lt;6,&gt;=3.0.1 in /usr/local/lib/python3.11/dist-packages (from gitdb&lt;5,&gt;=4.0.1-&gt;gitpython!=3.1.29,&gt;=1.0.0-&gt;wandb) (5.0.2)
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+git-lfs is already the newest version (3.0.2-1ubuntu0.3).
+0 upgraded, 0 newly installed, 0 to remove and 29 not upgraded.
+</pre></div>
+</div>
+</div>
+</div>
+<p>You will need to setup git, adapt your email and name in the following cell.</p>
+<p>You will also need to be logged in to the Hugging Face Hub. Execute the following and enter your credentials.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># log in to your own wandb account</span>
+<span class="kn">import</span> <span class="nn">wandb</span>
+<span class="n">wandb</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s1">&#39;ba52643060539d94db14aa8699f1e9d0631e4a9a&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: Using wandb-core as the SDK backend.  Please refer to https://wandb.me/wandb-core for more information.
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: <span class=" -Color -Color-Yellow">WARNING</span> If you&#39;re specifying your api key in code, ensure this code is not shared publicly.
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: <span class=" -Color -Color-Yellow">WARNING</span> Consider setting the WANDB_API_KEY environment variable, or running `wandb login` from the command line.
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: No netrc file found, creating one.
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: Appending key for api.wandb.ai to your netrc file: /root/.netrc
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: Currently logged in as: <span class=" -Color -Color-Yellow">yuchenli-cn</span> (<span class=" -Color -Color-Yellow">yuchenli-cn-university-of-british-columbia</span>) to <span class=" -Color -Color-Green">https://api.wandb.ai</span>. Use <span class=" -Color -Color-Bold">`wandb login --relogin`</span> to force relogin
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># load dataset</span>
+<span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+
+<span class="n">raw_datasets</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;kde4&quot;</span><span class="p">,</span> <span class="n">lang1</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">,</span> <span class="n">lang2</span><span class="o">=</span><span class="s2">&quot;fr&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/usr/local/lib/python3.11/dist-packages/huggingface_hub/utils/_auth.py:94: UserWarning: 
+The secret `HF_TOKEN` does not exist in your Colab secrets.
+To authenticate with the Hugging Face Hub, create a token in your settings tab (https://huggingface.co/settings/tokens), set it as secret in your Google Colab and restart your session.
+You will be able to reuse this secret in all of your notebooks.
+Please note that authentication is recommended but still optional to access public models or datasets.
+  warnings.warn(
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "844e623f8f6d4559aee4ddfbd1778b11", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "6d46575e98334fd68f1d4c1ac7c0caf4", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The repository for kde4 contains custom code which must be executed to correctly load the dataset. You can inspect the repository content at https://hf.co/datasets/kde4.
+You can avoid this prompt in future by passing the argument `trust_remote_code=True`.
+
+Do you wish to run the custom code? [y/N] y
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "69055ea6a55c4c8abfd4266cb79abb68", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "6b92723bb8ed4aaeb7e7a7ce83dfafa1", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#split the dataset into train and test</span>
+<span class="n">split_datasets</span> <span class="o">=</span> <span class="n">raw_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">train_size</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">split_datasets</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DatasetDict({
+    train: Dataset({
+        features: [&#39;id&#39;, &#39;translation&#39;],
+        num_rows: 208071
+    })
+    test: Dataset({
+        features: [&#39;id&#39;, &#39;translation&#39;],
+        num_rows: 2102
+    })
+})
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># rename the &quot;test&quot; dataset to &quot;validation&quot;</span>
+<span class="n">split_datasets</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">split_datasets</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span>
+<span class="c1"># &quot;Helsinki-NLP/opus-mt-en-fr&quot; is a pre-trained MarianMT model that translates English (en) to French (fr).</span>
+<span class="n">model_checkpoint</span> <span class="o">=</span> <span class="s2">&quot;Helsinki-NLP/opus-mt-en-fr&quot;</span>
+<span class="c1"># Initializes a translation pipeline using the specified model.</span>
+<span class="n">translator</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;translation&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model_checkpoint</span><span class="p">)</span>
+<span class="n">translator</span><span class="p">(</span><span class="s2">&quot;Default to expanded threads&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The cache for model files in Transformers v4.22.0 has been updated. Migrating your old cache. This is a one-time only operation. You can interrupt this and resume the migration later on by calling `transformers.utils.move_cache()`.
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "b0cc3e9e1b474a32831f32752e7f41cd", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "24a93e96f696411ca1d5e24acaa6ca96", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "23b7ee8fa3ce4de8b2ce0a5b474057c6", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "022da74b3cc2472f8c5f41806b9125a0", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "8ec17bfcff6941149317768fb2bfa0b3", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "8075b2aefbda43adb803548689b21903", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "712520e69d40409e91ad81011dc8c02b", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "7b84cb15452446a18caacef910e91b35", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "1f96b19c63e5441d876d3959722efbff", "version_major": 2, "version_minor": 0}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/usr/local/lib/python3.11/dist-packages/transformers/models/marian/tokenization_marian.py:175: UserWarning: Recommended: pip install sacremoses.
+  warnings.warn(&quot;Recommended: pip install sacremoses.&quot;)
+Device set to use cuda:0
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[{&#39;translation_text&#39;: &#39;Par défaut pour les threads élargis&#39;}]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoTokenizer</span>
+<span class="c1"># Specify the pre-trained model checkpoint (this one is for English-to-French translation)</span>
+<span class="n">model_checkpoint</span> <span class="o">=</span> <span class="s2">&quot;Helsinki-NLP/opus-mt-en-fr&quot;</span>
+
+<span class="c1"># Load the corresponding tokenizer, which converts text into a format that the model can process</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_checkpoint</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Retrieve an English sentence from the training set</span>
+<span class="n">en_sentence</span> <span class="o">=</span> <span class="n">split_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;translation&quot;</span><span class="p">][</span><span class="s2">&quot;en&quot;</span><span class="p">]</span>
+
+<span class="c1"># Retrieve the corresponding French translation from the training set</span>
+<span class="n">fr_sentence</span> <span class="o">=</span> <span class="n">split_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;translation&quot;</span><span class="p">][</span><span class="s2">&quot;fr&quot;</span><span class="p">]</span>
+
+<span class="c1"># Tokenize the English sentence as input and the French sentence as the target output</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">en_sentence</span><span class="p">,</span> <span class="n">text_target</span><span class="o">=</span><span class="n">fr_sentence</span><span class="p">)</span>
+
+<span class="c1"># Display the tokenized input-output pair</span>
+<span class="n">inputs</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;input_ids&#39;: [12406, 4, 1129, 7, 4, 4808, 2075, 37, 0], &#39;attention_mask&#39;: [1, 1, 1, 1, 1, 1, 1, 1, 1], &#39;labels&#39;: [40276, 19, 689, 5, 8, 6897, 5, 8, 2075, 402, 38492, 0]}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">128</span>  <span class="c1"># Maximum sequence length for tokenization</span>
+
+<span class="k">def</span> <span class="nf">preprocess_function</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Preprocesses the input examples for translation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        examples (dict): A dictionary containing a batch of examples with &quot;translation&quot; key,</span>
+<span class="sd">                         where each entry has &quot;en&quot; (English text) and &quot;fr&quot; (French text).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Tokenized inputs and target sequences.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Extract English (source) and French (target) texts from the dataset</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span><span class="p">[</span><span class="s2">&quot;en&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">examples</span><span class="p">[</span><span class="s2">&quot;translation&quot;</span><span class="p">]]</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span><span class="p">[</span><span class="s2">&quot;fr&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">examples</span><span class="p">[</span><span class="s2">&quot;translation&quot;</span><span class="p">]]</span>
+
+    <span class="c1"># Tokenize the input and target texts with truncation</span>
+    <span class="n">model_inputs</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span>
+        <span class="n">inputs</span><span class="p">,</span> <span class="n">text_target</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span> <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model_inputs</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tokenized_datasets</span> <span class="o">=</span> <span class="n">split_datasets</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+    <span class="n">preprocess_function</span><span class="p">,</span>  <span class="c1"># Apply the preprocessing function to each dataset split</span>
+    <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Process multiple examples at once for efficiency</span>
+    <span class="n">remove_columns</span><span class="o">=</span><span class="n">split_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">column_names</span><span class="p">,</span>  <span class="c1"># Remove original columns after tokenization</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "5f796b5942fc496ca2bc6316b5a2f08a", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "b7c2008401cf4757af6ad7f62ad97962", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoModelForSeq2SeqLM</span>
+
+<span class="c1"># Load the pretrained sequence-to-sequence model from the specified checkpoint</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForSeq2SeqLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_checkpoint</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">DataCollatorForSeq2Seq</span>
+
+<span class="c1"># Create a data collator to dynamically pad sequences during batching</span>
+<span class="c1"># This ensures that all sequences in a batch have the same length without unnecessary padding beforehand</span>
+<span class="n">data_collator</span> <span class="o">=</span> <span class="n">DataCollatorForSeq2Seq</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a batch of tokenized examples using the data collator</span>
+<span class="c1"># This dynamically pads sequences to the same length within the batch</span>
+<span class="n">batch</span> <span class="o">=</span> <span class="n">data_collator</span><span class="p">([</span><span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span>
+
+<span class="c1"># Display the keys of the resulting batch (e.g., input_ids, attention_mask, labels)</span>
+<span class="n">batch</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>dict_keys([&#39;input_ids&#39;, &#39;attention_mask&#39;, &#39;labels&#39;, &#39;decoder_input_ids&#39;])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>sacrebleu
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Collecting sacrebleu
+  Downloading sacrebleu-2.5.1-py3-none-any.whl.metadata (51 kB)
+?25l     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">0.0/51.8 kB</span> <span class=" -Color -Color-Red">?</span> eta <span class=" -Color -Color-Cyan">-:--:--</span>
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">51.8/51.8 kB</span> <span class=" -Color -Color-Red">3.2 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hCollecting portalocker (from sacrebleu)
+  Downloading portalocker-3.1.1-py3-none-any.whl.metadata (8.6 kB)
+Requirement already satisfied: regex in /usr/local/lib/python3.11/dist-packages (from sacrebleu) (2024.11.6)
+Requirement already satisfied: tabulate&gt;=0.8.9 in /usr/local/lib/python3.11/dist-packages (from sacrebleu) (0.9.0)
+Requirement already satisfied: numpy&gt;=1.17 in /usr/local/lib/python3.11/dist-packages (from sacrebleu) (1.26.4)
+Collecting colorama (from sacrebleu)
+  Downloading colorama-0.4.6-py2.py3-none-any.whl.metadata (17 kB)
+Requirement already satisfied: lxml in /usr/local/lib/python3.11/dist-packages (from sacrebleu) (5.3.1)
+Downloading sacrebleu-2.5.1-py3-none-any.whl (104 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ <span class=" -Color -Color-Green">104.1/104.1 kB</span> <span class=" -Color -Color-Red">7.1 MB/s</span> eta <span class=" -Color -Color-Cyan">0:00:00</span>
+?25hDownloading colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+Downloading portalocker-3.1.1-py3-none-any.whl (19 kB)
+Installing collected packages: portalocker, colorama, sacrebleu
+Successfully installed colorama-0.4.6 portalocker-3.1.1 sacrebleu-2.5.1
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">evaluate</span>
+
+<span class="c1"># Load the SacreBLEU metric for evaluating translation quality</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">evaluate</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;sacrebleu&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1bd3b633e19c49cfac14bbd99faa6871", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">compute_metrics</span><span class="p">(</span><span class="n">eval_preds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute BLEU score for model evaluation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        eval_preds (tuple): A tuple containing model predictions and labels.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary with the BLEU score.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">preds</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">eval_preds</span>
+
+    <span class="c1"># If the model returns additional outputs, extract the predictions</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Decode predicted token IDs into text</span>
+    <span class="n">decoded_preds</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">batch_decode</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">skip_special_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Replace -100s in labels (used for ignored tokens) with the padding token ID</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labels</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token_id</span><span class="p">)</span>
+
+    <span class="c1"># Decode label token IDs into text</span>
+    <span class="n">decoded_labels</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">batch_decode</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">skip_special_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Remove extra whitespace from predictions and labels</span>
+    <span class="n">decoded_preds</span> <span class="o">=</span> <span class="p">[</span><span class="n">pred</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">decoded_preds</span><span class="p">]</span>
+    <span class="n">decoded_labels</span> <span class="o">=</span> <span class="p">[[</span><span class="n">label</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">decoded_labels</span><span class="p">]</span>  <span class="c1"># BLEU expects list of references</span>
+
+    <span class="c1"># Compute BLEU score using the SacreBLEU metric</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">predictions</span><span class="o">=</span><span class="n">decoded_preds</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="n">decoded_labels</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;bleu&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="lab2-adam">
+<h1>lab2_adam<a class="headerlink" href="#lab2-adam" title="Permalink to this heading">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">Seq2SeqTrainingArguments</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Set the Weights &amp; Biases project name for logging</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WANDB_PROJECT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;COLX531_lab2&quot;</span>
+
+<span class="c1"># Define training arguments for the sequence-to-sequence model</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">Seq2SeqTrainingArguments</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;marian-finetuned-kde4-en-to-fr&quot;</span><span class="p">,</span>  <span class="c1"># Directory name for saving the trained model</span>
+    <span class="n">eval_strategy</span><span class="o">=</span><span class="s2">&quot;no&quot;</span><span class="p">,</span>  <span class="c1"># No evaluation during training</span>
+    <span class="n">save_strategy</span><span class="o">=</span><span class="s2">&quot;epoch&quot;</span><span class="p">,</span>  <span class="c1"># Save the model at the end of each epoch</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-5</span><span class="p">,</span>  <span class="c1"># Learning rate for the optimizer</span>
+    <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>  <span class="c1"># Batch size per device during training</span>
+    <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>  <span class="c1"># Batch size per device during evaluation</span>
+    <span class="n">gradient_accumulation_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Accumulate gradients over multiple steps to simulate a larger batch size</span>
+    <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Weight decay for regularization</span>
+    <span class="n">max_grad_norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># Gradient clipping to prevent exploding gradients</span>
+    <span class="n">lr_scheduler_type</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span>  <span class="c1"># Use a cosine learning rate scheduler</span>
+    <span class="n">warmup_ratio</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Proportion of training steps for learning rate warmup</span>
+    <span class="n">save_total_limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>  <span class="c1"># Keep only the last 3 saved models</span>
+    <span class="n">max_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>  <span class="c1"># Train for only 100 steps</span>
+    <span class="n">predict_with_generate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable text generation for evaluation</span>
+    <span class="n">report_to</span><span class="o">=</span><span class="s2">&quot;wandb&quot;</span><span class="p">,</span>  <span class="c1"># Log training progress to Weights &amp; Biases</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">&quot;lab2_adam&quot;</span><span class="p">,</span>  <span class="c1"># Experiment name for tracking different runs</span>
+    <span class="n">logging_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Log training progress every 2 steps</span>
+    <span class="n">optim</span><span class="o">=</span><span class="s2">&quot;adamw_torch_fused&quot;</span><span class="p">,</span>  <span class="c1"># Use PyTorch&#39;s fused AdamW optimizer (32-bit)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">Seq2SeqTrainer</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># Initialize the Seq2SeqTrainer for training and evaluation</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Seq2SeqTrainer</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>  <span class="c1"># The pre-trained sequence-to-sequence model</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># Training arguments defined earlier</span>
+    <span class="n">train_dataset</span><span class="o">=</span><span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span>  <span class="c1"># Training dataset</span>
+    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">],</span>  <span class="c1"># Validation dataset for evaluation</span>
+    <span class="n">data_collator</span><span class="o">=</span><span class="n">data_collator</span><span class="p">,</span>  <span class="c1"># Data collator for dynamic padding</span>
+    <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>  <span class="c1"># Tokenizer for processing text</span>
+    <span class="n">compute_metrics</span><span class="o">=</span><span class="n">compute_metrics</span><span class="p">,</span>  <span class="c1"># Function to compute evaluation metrics (BLEU)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;ipython-input-21-c32959c16b23&gt;:5: FutureWarning: `tokenizer` is deprecated and will be removed in version 5.0.0 for `Seq2SeqTrainer.__init__`. Use `processing_class` instead.
+  trainer = Seq2SeqTrainer(
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate the model on the validation dataset</span>
+<span class="c1"># max_length specifies the maximum sequence length for generated predictions</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+    <div>
+      
+      <progress value='33' max='33' style='width:300px; height:20px; vertical-align: middle;'></progress>
+      [33/33 02:21]
+    </div>
+    </div><div class="output text_html">Changes to your `wandb` environment variables will be ignored because your `wandb` session has already started. For more information on how to modify your settings with `wandb.init()` arguments, please refer to <a href='https://wandb.me/wandb-init' target="_blank">the W&B docs</a>.</div><div class="output text_html">Tracking run with wandb version 0.19.7</div><div class="output text_html">Run data is saved locally in <code>/content/wandb/run-20250302_033720-j1ggq0n4</code></div><div class="output text_html">Syncing run <strong><a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/j1ggq0n4' target="_blank">lab2_adam</a></strong> to <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2' target="_blank">Weights & Biases</a> (<a href='https://wandb.me/developer-guide' target="_blank">docs</a>)<br></div><div class="output text_html"> View project at <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2</a></div><div class="output text_html"> View run at <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/j1ggq0n4' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/j1ggq0n4</a></div><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;eval_loss&#39;: 1.7011359930038452,
+ &#39;eval_model_preparation_time&#39;: 0.0101,
+ &#39;eval_bleu&#39;: 38.41300494663786,
+ &#39;eval_runtime&#39;: 161.4921,
+ &#39;eval_samples_per_second&#39;: 13.016,
+ &#39;eval_steps_per_second&#39;: 0.204}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start training the model using the specified training arguments and dataset</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+    <div>
+      
+      <progress value='100' max='100' style='width:300px; height:20px; vertical-align: middle;'></progress>
+      [100/100 03:04, Epoch 0/1]
+    </div>
+    <table border="1" class="dataframe">
+  <thead>
+ <tr style="text-align: left;">
+      <th>Step</th>
+      <th>Training Loss</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2</td>
+      <td>1.908100</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>1.813300</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>1.946900</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>1.847100</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>1.759500</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>1.766900</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>1.684500</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>1.398500</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>1.748300</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>1.392800</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>1.814200</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>1.475400</td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>1.755800</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>1.589600</td>
+    </tr>
+    <tr>
+      <td>30</td>
+      <td>1.565200</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td>1.593000</td>
+    </tr>
+    <tr>
+      <td>34</td>
+      <td>1.499700</td>
+    </tr>
+    <tr>
+      <td>36</td>
+      <td>1.575500</td>
+    </tr>
+    <tr>
+      <td>38</td>
+      <td>1.721200</td>
+    </tr>
+    <tr>
+      <td>40</td>
+      <td>1.584200</td>
+    </tr>
+    <tr>
+      <td>42</td>
+      <td>1.362300</td>
+    </tr>
+    <tr>
+      <td>44</td>
+      <td>1.426900</td>
+    </tr>
+    <tr>
+      <td>46</td>
+      <td>1.685500</td>
+    </tr>
+    <tr>
+      <td>48</td>
+      <td>1.504900</td>
+    </tr>
+    <tr>
+      <td>50</td>
+      <td>1.279300</td>
+    </tr>
+    <tr>
+      <td>52</td>
+      <td>1.494200</td>
+    </tr>
+    <tr>
+      <td>54</td>
+      <td>1.445900</td>
+    </tr>
+    <tr>
+      <td>56</td>
+      <td>1.469700</td>
+    </tr>
+    <tr>
+      <td>58</td>
+      <td>1.385100</td>
+    </tr>
+    <tr>
+      <td>60</td>
+      <td>1.554400</td>
+    </tr>
+    <tr>
+      <td>62</td>
+      <td>1.484700</td>
+    </tr>
+    <tr>
+      <td>64</td>
+      <td>1.269900</td>
+    </tr>
+    <tr>
+      <td>66</td>
+      <td>1.546200</td>
+    </tr>
+    <tr>
+      <td>68</td>
+      <td>1.423900</td>
+    </tr>
+    <tr>
+      <td>70</td>
+      <td>1.570100</td>
+    </tr>
+    <tr>
+      <td>72</td>
+      <td>1.501500</td>
+    </tr>
+    <tr>
+      <td>74</td>
+      <td>1.600100</td>
+    </tr>
+    <tr>
+      <td>76</td>
+      <td>1.456200</td>
+    </tr>
+    <tr>
+      <td>78</td>
+      <td>1.473700</td>
+    </tr>
+    <tr>
+      <td>80</td>
+      <td>1.339500</td>
+    </tr>
+    <tr>
+      <td>82</td>
+      <td>1.402700</td>
+    </tr>
+    <tr>
+      <td>84</td>
+      <td>1.478500</td>
+    </tr>
+    <tr>
+      <td>86</td>
+      <td>1.453400</td>
+    </tr>
+    <tr>
+      <td>88</td>
+      <td>1.370500</td>
+    </tr>
+    <tr>
+      <td>90</td>
+      <td>1.547600</td>
+    </tr>
+    <tr>
+      <td>92</td>
+      <td>1.504500</td>
+    </tr>
+    <tr>
+      <td>94</td>
+      <td>1.415500</td>
+    </tr>
+    <tr>
+      <td>96</td>
+      <td>1.648700</td>
+    </tr>
+    <tr>
+      <td>98</td>
+      <td>1.393800</td>
+    </tr>
+    <tr>
+      <td>100</td>
+      <td>1.777700</td>
+    </tr>
+  </tbody>
+</table><p></div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/usr/local/lib/python3.11/dist-packages/transformers/modeling_utils.py:2758: UserWarning: Moving the following attributes in the config to the generation config: {&#39;max_length&#39;: 512, &#39;num_beams&#39;: 4, &#39;bad_words_ids&#39;: [[59513]]}. You are seeing this warning because you&#39;ve set generation parameters in the model config, as opposed to in the generation config.
+  warnings.warn(
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TrainOutput(global_step=100, training_loss=1.5541312742233275, metrics={&#39;train_runtime&#39;: 186.5994, &#39;train_samples_per_second&#39;: 68.596, &#39;train_steps_per_second&#39;: 0.536, &#39;total_flos&#39;: 303712400572416.0, &#39;train_loss&#39;: 1.5541312742233275, &#39;epoch&#39;: 0.06150061500615006})
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate the model on the validation dataset after training</span>
+<span class="c1"># max_length specifies the maximum sequence length for generated predictions</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+    <div>
+      
+      <progress value='66' max='33' style='width:300px; height:20px; vertical-align: middle;'></progress>
+      [33/33 08:14]
+    </div>
+    </div><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;eval_loss&#39;: 1.3738259077072144,
+ &#39;eval_model_preparation_time&#39;: 0.0101,
+ &#39;eval_bleu&#39;: 43.24239593300917,
+ &#39;eval_runtime&#39;: 165.4884,
+ &#39;eval_samples_per_second&#39;: 12.702,
+ &#39;eval_steps_per_second&#39;: 0.199,
+ &#39;epoch&#39;: 0.06150061500615006}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wandb</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"></div><div class="output text_html"><br>    <style><br>        .wandb-row {<br>            display: flex;<br>            flex-direction: row;<br>            flex-wrap: wrap;<br>            justify-content: flex-start;<br>            width: 100%;<br>        }<br>        .wandb-col {<br>            display: flex;<br>            flex-direction: column;<br>            flex-basis: 100%;<br>            flex: 1;<br>            padding: 10px;<br>        }<br>    </style><br><div class="wandb-row"><div class="wandb-col"><h3>Run history:</h3><br/><table class="wandb"><tr><td>eval/bleu</td><td>▁█</td></tr><tr><td>eval/loss</td><td>█▁</td></tr><tr><td>eval/model_preparation_time</td><td>▁▁</td></tr><tr><td>eval/runtime</td><td>▁█</td></tr><tr><td>eval/samples_per_second</td><td>█▁</td></tr><tr><td>eval/steps_per_second</td><td>█▁</td></tr><tr><td>train/epoch</td><td>▁▁▁▁▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇████</td></tr><tr><td>train/global_step</td><td>▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇█████</td></tr><tr><td>train/grad_norm</td><td>█▅▆▃▃▃▂▂▃▂▁▂▃▁▂▁▂▁▃▂▁▃▂▂▁▂▂▂▃▁▂▂▂▁▂▂▂▁▂▁</td></tr><tr><td>train/learning_rate</td><td>▂▄▅▇██████▇▇▇▇▇▆▆▆▆▅▅▅▄▄▄▃▃▃▃▂▂▂▂▂▁▁▁▁▁▁</td></tr><tr><td>train/loss</td><td>█▇█▇▆▅▂▆▂▇▆▄▄▄▃▆▄▂▅▃▃▃▃▂▄▁▄▃▄▃▃▃▂▃▃▄▃▃▅▆</td></tr></table><br/></div><div class="wandb-col"><h3>Run summary:</h3><br/><table class="wandb"><tr><td>eval/bleu</td><td>43.2424</td></tr><tr><td>eval/loss</td><td>1.37383</td></tr><tr><td>eval/model_preparation_time</td><td>0.0101</td></tr><tr><td>eval/runtime</td><td>165.4884</td></tr><tr><td>eval/samples_per_second</td><td>12.702</td></tr><tr><td>eval/steps_per_second</td><td>0.199</td></tr><tr><td>total_flos</td><td>303712400572416.0</td></tr><tr><td>train/epoch</td><td>0.0615</td></tr><tr><td>train/global_step</td><td>100</td></tr><tr><td>train/grad_norm</td><td>2.00851</td></tr><tr><td>train/learning_rate</td><td>0</td></tr><tr><td>train/loss</td><td>1.7777</td></tr><tr><td>train_loss</td><td>1.55413</td></tr><tr><td>train_runtime</td><td>186.5994</td></tr><tr><td>train_samples_per_second</td><td>68.596</td></tr><tr><td>train_steps_per_second</td><td>0.536</td></tr></table><br/></div></div></div><div class="output text_html"> View run <strong style="color:#cdcd00">lab2_adam</strong> at: <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/j1ggq0n4' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/j1ggq0n4</a><br> View project at: <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2</a><br>Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)</div><div class="output text_html">Find logs at: <code>./wandb/run-20250302_033720-j1ggq0n4/logs</code></div></div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="lab2-efficient">
+<h1>lab2_efficient<a class="headerlink" href="#lab2-efficient" title="Permalink to this heading">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">Seq2SeqTrainingArguments</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Set the project name for Weights &amp; Biases logging</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WANDB_PROJECT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;COLX531_lab2&quot;</span>
+
+<span class="c1"># Define training arguments for the Seq2Seq model</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">Seq2SeqTrainingArguments</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;marian-finetuned-kde4-en-to-fr&quot;</span><span class="p">,</span>  <span class="c1"># Output directory for the model</span>
+    <span class="n">eval_strategy</span><span class="o">=</span><span class="s2">&quot;no&quot;</span><span class="p">,</span>  <span class="c1"># No evaluation during training</span>
+    <span class="n">save_strategy</span><span class="o">=</span><span class="s2">&quot;epoch&quot;</span><span class="p">,</span>  <span class="c1"># Save model at the end of each epoch</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-5</span><span class="p">,</span>  <span class="c1"># Learning rate for the optimizer</span>
+    <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>  <span class="c1"># Reduced batch size per device to fit memory</span>
+    <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>  <span class="c1"># Reduced evaluation batch size per device</span>
+    <span class="n">gradient_accumulation_steps</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>  <span class="c1"># Increase accumulation steps to maintain an effective batch size of 128</span>
+    <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Weight decay for regularization</span>
+    <span class="n">max_grad_norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># Gradient clipping to prevent exploding gradients</span>
+    <span class="n">lr_scheduler_type</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span>  <span class="c1"># Use a cosine learning rate scheduler</span>
+    <span class="n">warmup_ratio</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Warmup steps as a fraction of total training steps</span>
+    <span class="n">save_total_limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>  <span class="c1"># Keep only the last 3 saved models</span>
+    <span class="n">max_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>  <span class="c1"># Train for only 100 steps</span>
+    <span class="n">predict_with_generate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable text generation for evaluation</span>
+    <span class="n">report_to</span><span class="o">=</span><span class="s2">&quot;wandb&quot;</span><span class="p">,</span>  <span class="c1"># Log training progress to Weights &amp; Biases</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">&quot;lab2_efficient&quot;</span><span class="p">,</span>  <span class="c1"># Experiment name for tracking</span>
+    <span class="n">logging_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Log every 2 steps</span>
+    <span class="n">optim</span><span class="o">=</span><span class="s2">&quot;adamw_torch_fused&quot;</span><span class="p">,</span>  <span class="c1"># Use PyTorch fused AdamW optimizer (32-bit)</span>
+    <span class="n">gradient_checkpointing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable gradient checkpointing to save memory</span>
+    <span class="n">fp16</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable mixed-precision training with FP16</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">Seq2SeqTrainer</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># Initialize the Seq2SeqTrainer for training and evaluation</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Seq2SeqTrainer</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>  <span class="c1"># The pre-trained sequence-to-sequence model</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># Training arguments defined earlier</span>
+    <span class="n">train_dataset</span><span class="o">=</span><span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span>  <span class="c1"># Training dataset</span>
+    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">],</span>  <span class="c1"># Validation dataset for evaluation</span>
+    <span class="n">data_collator</span><span class="o">=</span><span class="n">data_collator</span><span class="p">,</span>  <span class="c1"># Data collator for dynamic padding</span>
+    <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>  <span class="c1"># Tokenizer for processing text</span>
+    <span class="n">compute_metrics</span><span class="o">=</span><span class="n">compute_metrics</span><span class="p">,</span>  <span class="c1"># Function to compute evaluation metrics (BLEU)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;ipython-input-27-c32959c16b23&gt;:5: FutureWarning: `tokenizer` is deprecated and will be removed in version 5.0.0 for `Seq2SeqTrainer.__init__`. Use `processing_class` instead.
+  trainer = Seq2SeqTrainer(
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate the model on the validation dataset</span>
+<span class="c1"># max_length specifies the maximum sequence length for generated predictions</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+    <div>
+      
+      <progress value='66' max='66' style='width:300px; height:20px; vertical-align: middle;'></progress>
+      [66/66 02:34]
+    </div>
+    </div><div class="output text_html">Changes to your `wandb` environment variables will be ignored because your `wandb` session has already started. For more information on how to modify your settings with `wandb.init()` arguments, please refer to <a href='https://wandb.me/wandb-init' target="_blank">the W&B docs</a>.</div><div class="output text_html">Tracking run with wandb version 0.19.7</div><div class="output text_html">Run data is saved locally in <code>/content/wandb/run-20250302_034603-13kfor0u</code></div><div class="output text_html">Syncing run <strong><a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/13kfor0u' target="_blank">lab2_efficient</a></strong> to <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2' target="_blank">Weights & Biases</a> (<a href='https://wandb.me/developer-guide' target="_blank">docs</a>)<br></div><div class="output text_html"> View project at <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2</a></div><div class="output text_html"> View run at <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/13kfor0u' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/13kfor0u</a></div><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;eval_loss&#39;: 1.3729585409164429,
+ &#39;eval_model_preparation_time&#39;: 0.0029,
+ &#39;eval_bleu&#39;: 43.240395230190664,
+ &#39;eval_runtime&#39;: 168.0474,
+ &#39;eval_samples_per_second&#39;: 12.508,
+ &#39;eval_steps_per_second&#39;: 0.393}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start training the model using the specified training arguments and dataset</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+    <div>
+      
+      <progress value='100' max='100' style='width:300px; height:20px; vertical-align: middle;'></progress>
+      [100/100 01:21, Epoch 0/1]
+    </div>
+    <table border="1" class="dataframe">
+  <thead>
+ <tr style="text-align: left;">
+      <th>Step</th>
+      <th>Training Loss</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2</td>
+      <td>1.478700</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>1.453300</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>1.530700</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>1.444700</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>1.414500</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>1.479300</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>1.383400</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>1.144700</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>1.454500</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>1.213800</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>1.558700</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>1.294500</td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>1.559000</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>1.384500</td>
+    </tr>
+    <tr>
+      <td>30</td>
+      <td>1.385400</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td>1.402500</td>
+    </tr>
+    <tr>
+      <td>34</td>
+      <td>1.324000</td>
+    </tr>
+    <tr>
+      <td>36</td>
+      <td>1.423000</td>
+    </tr>
+    <tr>
+      <td>38</td>
+      <td>1.519500</td>
+    </tr>
+    <tr>
+      <td>40</td>
+      <td>1.394800</td>
+    </tr>
+    <tr>
+      <td>42</td>
+      <td>1.212800</td>
+    </tr>
+    <tr>
+      <td>44</td>
+      <td>1.256000</td>
+    </tr>
+    <tr>
+      <td>46</td>
+      <td>1.504600</td>
+    </tr>
+    <tr>
+      <td>48</td>
+      <td>1.346200</td>
+    </tr>
+    <tr>
+      <td>50</td>
+      <td>1.194800</td>
+    </tr>
+    <tr>
+      <td>52</td>
+      <td>1.369100</td>
+    </tr>
+    <tr>
+      <td>54</td>
+      <td>1.316800</td>
+    </tr>
+    <tr>
+      <td>56</td>
+      <td>1.388100</td>
+    </tr>
+    <tr>
+      <td>58</td>
+      <td>1.354000</td>
+    </tr>
+    <tr>
+      <td>60</td>
+      <td>1.486700</td>
+    </tr>
+    <tr>
+      <td>62</td>
+      <td>1.411200</td>
+    </tr>
+    <tr>
+      <td>64</td>
+      <td>1.205500</td>
+    </tr>
+    <tr>
+      <td>66</td>
+      <td>1.456100</td>
+    </tr>
+    <tr>
+      <td>68</td>
+      <td>1.338300</td>
+    </tr>
+    <tr>
+      <td>70</td>
+      <td>1.484700</td>
+    </tr>
+    <tr>
+      <td>72</td>
+      <td>1.388200</td>
+    </tr>
+    <tr>
+      <td>74</td>
+      <td>1.517400</td>
+    </tr>
+    <tr>
+      <td>76</td>
+      <td>1.395500</td>
+    </tr>
+    <tr>
+      <td>78</td>
+      <td>1.395900</td>
+    </tr>
+    <tr>
+      <td>80</td>
+      <td>1.270900</td>
+    </tr>
+    <tr>
+      <td>82</td>
+      <td>1.323200</td>
+    </tr>
+    <tr>
+      <td>84</td>
+      <td>1.379200</td>
+    </tr>
+    <tr>
+      <td>86</td>
+      <td>1.352100</td>
+    </tr>
+    <tr>
+      <td>88</td>
+      <td>1.333100</td>
+    </tr>
+    <tr>
+      <td>90</td>
+      <td>1.469100</td>
+    </tr>
+    <tr>
+      <td>92</td>
+      <td>1.429400</td>
+    </tr>
+    <tr>
+      <td>94</td>
+      <td>1.344800</td>
+    </tr>
+    <tr>
+      <td>96</td>
+      <td>1.581500</td>
+    </tr>
+    <tr>
+      <td>98</td>
+      <td>1.298900</td>
+    </tr>
+    <tr>
+      <td>100</td>
+      <td>1.661600</td>
+    </tr>
+  </tbody>
+</table><p></div><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TrainOutput(global_step=100, training_loss=1.3941830921173095, metrics={&#39;train_runtime&#39;: 82.6467, &#39;train_samples_per_second&#39;: 154.876, &#39;train_steps_per_second&#39;: 1.21, &#39;total_flos&#39;: 243847888109568.0, &#39;train_loss&#39;: 1.3941830921173095, &#39;epoch&#39;: 0.06151007227433492})
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate the model on the validation dataset after training</span>
+<span class="c1"># max_length specifies the maximum sequence length for generated predictions</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+    <div>
+      
+      <progress value='132' max='66' style='width:300px; height:20px; vertical-align: middle;'></progress>
+      [66/66 06:35]
+    </div>
+    </div><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;eval_loss&#39;: 1.2957433462142944,
+ &#39;eval_model_preparation_time&#39;: 0.0029,
+ &#39;eval_bleu&#39;: 44.34277291413853,
+ &#39;eval_runtime&#39;: 157.7035,
+ &#39;eval_samples_per_second&#39;: 13.329,
+ &#39;eval_steps_per_second&#39;: 0.419,
+ &#39;epoch&#39;: 0.06151007227433492}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wandb</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"></div><div class="output text_html"><br>    <style><br>        .wandb-row {<br>            display: flex;<br>            flex-direction: row;<br>            flex-wrap: wrap;<br>            justify-content: flex-start;<br>            width: 100%;<br>        }<br>        .wandb-col {<br>            display: flex;<br>            flex-direction: column;<br>            flex-basis: 100%;<br>            flex: 1;<br>            padding: 10px;<br>        }<br>    </style><br><div class="wandb-row"><div class="wandb-col"><h3>Run history:</h3><br/><table class="wandb"><tr><td>eval/bleu</td><td>▁█</td></tr><tr><td>eval/loss</td><td>█▁</td></tr><tr><td>eval/model_preparation_time</td><td>▁▁</td></tr><tr><td>eval/runtime</td><td>█▁</td></tr><tr><td>eval/samples_per_second</td><td>▁█</td></tr><tr><td>eval/steps_per_second</td><td>▁█</td></tr><tr><td>train/epoch</td><td>▁▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▆▆▆▆▇▇▇▇▇█████</td></tr><tr><td>train/global_step</td><td>▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇████</td></tr><tr><td>train/grad_norm</td><td>▇▅▅▅▃▅▃▅▄▅▄▁▅█▆▄▃▄▃█▅▄▄▅▅▅▄▅█▃▅▆▄▃▆▅▄▄▆▄</td></tr><tr><td>train/learning_rate</td><td>▂▄▅▇██████▇▇▇▇▇▆▆▆▆▆▅▅▄▄▄▃▃▃▃▂▂▂▂▂▁▁▁▁▁▁</td></tr><tr><td>train/loss</td><td>▆▅▆▅▅▄▁▂▇▃▄▄▃▅▆▂▃▆▄▂▃▄▄▆▅▅▄▆▄▆▄▃▃▄▄▅▅▄▇█</td></tr></table><br/></div><div class="wandb-col"><h3>Run summary:</h3><br/><table class="wandb"><tr><td>eval/bleu</td><td>44.34277</td></tr><tr><td>eval/loss</td><td>1.29574</td></tr><tr><td>eval/model_preparation_time</td><td>0.0029</td></tr><tr><td>eval/runtime</td><td>157.7035</td></tr><tr><td>eval/samples_per_second</td><td>13.329</td></tr><tr><td>eval/steps_per_second</td><td>0.419</td></tr><tr><td>total_flos</td><td>243847888109568.0</td></tr><tr><td>train/epoch</td><td>0.06151</td></tr><tr><td>train/global_step</td><td>100</td></tr><tr><td>train/grad_norm</td><td>2.06358</td></tr><tr><td>train/learning_rate</td><td>0</td></tr><tr><td>train/loss</td><td>1.6616</td></tr><tr><td>train_loss</td><td>1.39418</td></tr><tr><td>train_runtime</td><td>82.6467</td></tr><tr><td>train_samples_per_second</td><td>154.876</td></tr><tr><td>train_steps_per_second</td><td>1.21</td></tr></table><br/></div></div></div><div class="output text_html"> View run <strong style="color:#cdcd00">lab2_efficient</strong> at: <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/13kfor0u' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/13kfor0u</a><br> View project at: <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2</a><br>Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)</div><div class="output text_html">Find logs at: <code>./wandb/run-20250302_034603-13kfor0u/logs</code></div></div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="lab2-8bit-adam">
+<h1>lab2_8bit_adam<a class="headerlink" href="#lab2-8bit-adam" title="Permalink to this heading">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">Seq2SeqTrainingArguments</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Set the project name for Weights &amp; Biases logging</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WANDB_PROJECT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;COLX531_lab2&quot;</span>
+
+<span class="c1"># Define training arguments for the Seq2Seq model</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">Seq2SeqTrainingArguments</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;marian-finetuned-kde4-en-to-fr&quot;</span><span class="p">,</span>  <span class="c1"># Output directory for the model</span>
+    <span class="n">eval_strategy</span><span class="o">=</span><span class="s2">&quot;no&quot;</span><span class="p">,</span>  <span class="c1"># No evaluation during training</span>
+    <span class="n">save_strategy</span><span class="o">=</span><span class="s2">&quot;epoch&quot;</span><span class="p">,</span>  <span class="c1"># Save model at the end of each epoch</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-5</span><span class="p">,</span>  <span class="c1"># Learning rate for the optimizer</span>
+    <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>  <span class="c1"># Increase batch size per device to utilize freed memory</span>
+    <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>  <span class="c1"># Adjust evaluation batch size accordingly</span>
+    <span class="n">gradient_accumulation_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>  <span class="c1"># Reduce accumulation steps to maintain an effective batch size of 128</span>
+    <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Weight decay for regularization</span>
+    <span class="n">max_grad_norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># Gradient clipping to prevent exploding gradients</span>
+    <span class="n">lr_scheduler_type</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span>  <span class="c1"># Use a cosine learning rate scheduler</span>
+    <span class="n">warmup_ratio</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Warmup steps as a fraction of total training steps</span>
+    <span class="n">save_total_limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>  <span class="c1"># Keep only the last 3 saved models</span>
+    <span class="n">max_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>  <span class="c1"># Train for only 100 steps</span>
+    <span class="n">predict_with_generate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable text generation for evaluation</span>
+    <span class="n">report_to</span><span class="o">=</span><span class="s2">&quot;wandb&quot;</span><span class="p">,</span>  <span class="c1"># Log training progress to Weights &amp; Biases</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">&quot;lab2_8bit_adam&quot;</span><span class="p">,</span>  <span class="c1"># Experiment name for tracking</span>
+    <span class="n">logging_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Log every 2 steps</span>
+    <span class="n">optim</span><span class="o">=</span><span class="s2">&quot;adamw_8bit&quot;</span><span class="p">,</span>  <span class="c1"># Use 8-bit Adam optimizer from bitsandbytes</span>
+    <span class="n">gradient_checkpointing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable gradient checkpointing to save memory</span>
+    <span class="n">fp16</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable mixed-precision training with FP16</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">Seq2SeqTrainer</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># Initialize the Seq2SeqTrainer for training and evaluation</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Seq2SeqTrainer</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>  <span class="c1"># The pre-trained sequence-to-sequence model</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># Training arguments defined earlier</span>
+    <span class="n">train_dataset</span><span class="o">=</span><span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span>  <span class="c1"># Training dataset</span>
+    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">],</span>  <span class="c1"># Validation dataset for evaluation</span>
+    <span class="n">data_collator</span><span class="o">=</span><span class="n">data_collator</span><span class="p">,</span>  <span class="c1"># Data collator for dynamic padding</span>
+    <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>  <span class="c1"># Tokenizer for processing text</span>
+    <span class="n">compute_metrics</span><span class="o">=</span><span class="n">compute_metrics</span><span class="p">,</span>  <span class="c1"># Function to compute evaluation metrics (BLEU)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;ipython-input-33-c32959c16b23&gt;:5: FutureWarning: `tokenizer` is deprecated and will be removed in version 5.0.0 for `Seq2SeqTrainer.__init__`. Use `processing_class` instead.
+  trainer = Seq2SeqTrainer(
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate the model on the validation dataset</span>
+<span class="c1"># max_length specifies the maximum sequence length for generated predictions</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+    <div>
+      
+      <progress value='44' max='44' style='width:300px; height:20px; vertical-align: middle;'></progress>
+      [44/44 02:19]
+    </div>
+    </div><div class="output text_html">Changes to your `wandb` environment variables will be ignored because your `wandb` session has already started. For more information on how to modify your settings with `wandb.init()` arguments, please refer to <a href='https://wandb.me/wandb-init' target="_blank">the W&B docs</a>.</div><div class="output text_html">Tracking run with wandb version 0.19.7</div><div class="output text_html">Run data is saved locally in <code>/content/wandb/run-20250302_035240-ws64ja53</code></div><div class="output text_html">Syncing run <strong><a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/ws64ja53' target="_blank">lab2_8bit_adam</a></strong> to <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2' target="_blank">Weights & Biases</a> (<a href='https://wandb.me/developer-guide' target="_blank">docs</a>)<br></div><div class="output text_html"> View project at <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2</a></div><div class="output text_html"> View run at <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/ws64ja53' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/ws64ja53</a></div><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;eval_loss&#39;: 1.2952913045883179,
+ &#39;eval_model_preparation_time&#39;: 0.0028,
+ &#39;eval_bleu&#39;: 44.29981348597364,
+ &#39;eval_runtime&#39;: 153.5537,
+ &#39;eval_samples_per_second&#39;: 13.689,
+ &#39;eval_steps_per_second&#39;: 0.287}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start training the model using the specified training arguments and dataset</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+    <div>
+      
+      <progress value='100' max='100' style='width:300px; height:20px; vertical-align: middle;'></progress>
+      [100/100 01:29, Epoch 0/1]
+    </div>
+    <table border="1" class="dataframe">
+  <thead>
+ <tr style="text-align: left;">
+      <th>Step</th>
+      <th>Training Loss</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2</td>
+      <td>1.278400</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>1.285900</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>1.422100</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>1.257000</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>1.242700</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>1.247300</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>1.083800</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>1.288400</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>1.123700</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>1.353800</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>1.240300</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>1.389600</td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>1.225900</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>1.299100</td>
+    </tr>
+    <tr>
+      <td>30</td>
+      <td>1.261800</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td>1.275300</td>
+    </tr>
+    <tr>
+      <td>34</td>
+      <td>1.388600</td>
+    </tr>
+    <tr>
+      <td>36</td>
+      <td>1.216200</td>
+    </tr>
+    <tr>
+      <td>38</td>
+      <td>1.101500</td>
+    </tr>
+    <tr>
+      <td>40</td>
+      <td>1.331500</td>
+    </tr>
+    <tr>
+      <td>42</td>
+      <td>1.283500</td>
+    </tr>
+    <tr>
+      <td>44</td>
+      <td>1.137600</td>
+    </tr>
+    <tr>
+      <td>46</td>
+      <td>1.277700</td>
+    </tr>
+    <tr>
+      <td>48</td>
+      <td>1.228200</td>
+    </tr>
+    <tr>
+      <td>50</td>
+      <td>1.315900</td>
+    </tr>
+    <tr>
+      <td>52</td>
+      <td>1.266000</td>
+    </tr>
+    <tr>
+      <td>54</td>
+      <td>1.350600</td>
+    </tr>
+    <tr>
+      <td>56</td>
+      <td>1.210000</td>
+    </tr>
+    <tr>
+      <td>58</td>
+      <td>1.350200</td>
+    </tr>
+    <tr>
+      <td>60</td>
+      <td>1.229900</td>
+    </tr>
+    <tr>
+      <td>62</td>
+      <td>1.370000</td>
+    </tr>
+    <tr>
+      <td>64</td>
+      <td>1.384600</td>
+    </tr>
+    <tr>
+      <td>66</td>
+      <td>1.404500</td>
+    </tr>
+    <tr>
+      <td>68</td>
+      <td>1.395400</td>
+    </tr>
+    <tr>
+      <td>70</td>
+      <td>1.199000</td>
+    </tr>
+    <tr>
+      <td>72</td>
+      <td>1.327600</td>
+    </tr>
+    <tr>
+      <td>74</td>
+      <td>1.275400</td>
+    </tr>
+    <tr>
+      <td>76</td>
+      <td>1.336300</td>
+    </tr>
+    <tr>
+      <td>78</td>
+      <td>1.307400</td>
+    </tr>
+    <tr>
+      <td>80</td>
+      <td>1.409700</td>
+    </tr>
+    <tr>
+      <td>82</td>
+      <td>1.372400</td>
+    </tr>
+    <tr>
+      <td>84</td>
+      <td>1.358900</td>
+    </tr>
+    <tr>
+      <td>86</td>
+      <td>1.434700</td>
+    </tr>
+    <tr>
+      <td>88</td>
+      <td>1.451500</td>
+    </tr>
+    <tr>
+      <td>90</td>
+      <td>1.479100</td>
+    </tr>
+    <tr>
+      <td>92</td>
+      <td>1.455900</td>
+    </tr>
+    <tr>
+      <td>94</td>
+      <td>1.443700</td>
+    </tr>
+    <tr>
+      <td>96</td>
+      <td>1.357400</td>
+    </tr>
+    <tr>
+      <td>98</td>
+      <td>1.227900</td>
+    </tr>
+    <tr>
+      <td>100</td>
+      <td>1.405700</td>
+    </tr>
+  </tbody>
+</table><p></div><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TrainOutput(global_step=100, training_loss=1.3071859073638916, metrics={&#39;train_runtime&#39;: 90.3135, &#39;train_samples_per_second&#39;: 159.445, &#39;train_steps_per_second&#39;: 1.107, &#39;total_flos&#39;: 316309880438784.0, &#39;train_loss&#39;: 1.3071859073638916, &#39;epoch&#39;: 0.06920415224913495})
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate the model on the validation dataset after training</span>
+<span class="c1"># max_length specifies the maximum sequence length for generated predictions</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+    <div>
+      
+      <progress value='88' max='44' style='width:300px; height:20px; vertical-align: middle;'></progress>
+      [44/44 06:24]
+    </div>
+    </div><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;eval_loss&#39;: 1.2506107091903687,
+ &#39;eval_model_preparation_time&#39;: 0.0028,
+ &#39;eval_bleu&#39;: 44.82751008018826,
+ &#39;eval_runtime&#39;: 152.7335,
+ &#39;eval_samples_per_second&#39;: 13.763,
+ &#39;eval_steps_per_second&#39;: 0.288,
+ &#39;epoch&#39;: 0.06920415224913495}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wandb</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"></div><div class="output text_html"><br>    <style><br>        .wandb-row {<br>            display: flex;<br>            flex-direction: row;<br>            flex-wrap: wrap;<br>            justify-content: flex-start;<br>            width: 100%;<br>        }<br>        .wandb-col {<br>            display: flex;<br>            flex-direction: column;<br>            flex-basis: 100%;<br>            flex: 1;<br>            padding: 10px;<br>        }<br>    </style><br><div class="wandb-row"><div class="wandb-col"><h3>Run history:</h3><br/><table class="wandb"><tr><td>eval/bleu</td><td>▁█</td></tr><tr><td>eval/loss</td><td>█▁</td></tr><tr><td>eval/model_preparation_time</td><td>▁▁</td></tr><tr><td>eval/runtime</td><td>█▁</td></tr><tr><td>eval/samples_per_second</td><td>▁█</td></tr><tr><td>eval/steps_per_second</td><td>▁█</td></tr><tr><td>train/epoch</td><td>▁▁▁▁▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇█████</td></tr><tr><td>train/global_step</td><td>▁▁▁▁▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇█████</td></tr><tr><td>train/grad_norm</td><td>▅▂▄▄▃▁▃▃▂▃▃▆▁▃▅▂▇▄▂▅▆▆█▂▂▂▂▅▃▃▂▄▄▅▃▅▄▃▃▅</td></tr><tr><td>train/learning_rate</td><td>▂▄▅▇██████▇▇▇▇▇▆▆▆▆▆▅▅▅▄▄▄▃▃▃▃▂▂▂▂▂▁▁▁▁▁</td></tr><tr><td>train/loss</td><td>▄▅▇▄▄▁▅▂▆▄▄▅▄▄▆▁▅▅▂▄▄▆▃▆▄▆▇▇▃▅▅▅▇▆▆██▇▆▇</td></tr></table><br/></div><div class="wandb-col"><h3>Run summary:</h3><br/><table class="wandb"><tr><td>eval/bleu</td><td>44.82751</td></tr><tr><td>eval/loss</td><td>1.25061</td></tr><tr><td>eval/model_preparation_time</td><td>0.0028</td></tr><tr><td>eval/runtime</td><td>152.7335</td></tr><tr><td>eval/samples_per_second</td><td>13.763</td></tr><tr><td>eval/steps_per_second</td><td>0.288</td></tr><tr><td>total_flos</td><td>316309880438784.0</td></tr><tr><td>train/epoch</td><td>0.0692</td></tr><tr><td>train/global_step</td><td>100</td></tr><tr><td>train/grad_norm</td><td>2.03081</td></tr><tr><td>train/learning_rate</td><td>0</td></tr><tr><td>train/loss</td><td>1.4057</td></tr><tr><td>train_loss</td><td>1.30719</td></tr><tr><td>train_runtime</td><td>90.3135</td></tr><tr><td>train_samples_per_second</td><td>159.445</td></tr><tr><td>train_steps_per_second</td><td>1.107</td></tr></table><br/></div></div></div><div class="output text_html"> View run <strong style="color:#cdcd00">lab2_8bit_adam</strong> at: <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/ws64ja53' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2/runs/ws64ja53</a><br> View project at: <a href='https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2' target="_blank">https://wandb.ai/yuchenli-cn-university-of-british-columbia/COLX531_lab2</a><br>Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)</div><div class="output text_html">Find logs at: <code>./wandb/run-20250302_035240-ws64ja53/logs</code></div></div>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./archive"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="markdown-notebooks.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Notebooks with MyST Markdown</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="markdown.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Markdown Files</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">COLX 531 Lab 2. Training transformers efficiently</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#objective">Objective</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-1">Assignment 1.1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assignment-1-2">Assignment 1.2</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#lab2-adam">lab2_adam</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#lab2-efficient">lab2_efficient</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#lab2-8bit-adam">lab2_8bit_adam</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Yuchen Li
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
